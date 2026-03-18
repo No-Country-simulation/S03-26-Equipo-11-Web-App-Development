@@ -37,4 +37,4 @@ Desarrollar un sistema CRM inteligente con integración nativa a WhatsApp y corr
 | **Rodrigo Fernández** | Backend Developer ||
 | **Favian Fernando Medina Gemio** | Backend Developer |https://github.com/fabinnerself|
 | **Mario Isaac Alberto Cortez** | Backend Developer |https://github.com/mariocortezBEST|
-| **Anghelo Flores** | Backend Developer ||
+| **Anghelo Flores** | Backend Developer |https://github.com/evanghel1on|
