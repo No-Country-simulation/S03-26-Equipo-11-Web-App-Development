@@ -1,0 +1,16 @@
+enviar correo electronico
+POST /email/send - Envía un email
+
+PAQUETES NPM RECOMENDADOS
+Paquete	Uso	Enlace
+googleapis	Cliente oficial de Google	npm/googleapis
+node-imap	Cliente IMAP	npm/node-imap 
+mailparser	Parsear emails	npm/mailparser
+gmail-backend	API REST lista para Gmail	GitHub 
+
+stack nodejs y trypescript
+
+genear pruebas con archivo docs/test/email.http 
+
+
+
