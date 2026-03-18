@@ -29,12 +29,12 @@ Desarrollar un sistema CRM inteligente con integración nativa a WhatsApp y corr
 
 ## 👥 Equipo de Desarrollo (Equipo 11)
 
-| Nombre | Rol |
-| :--- | :--- |
-| **Carla Vallejos Ari** | Full Stack Developer |
-| **Ricardo Thalhuen Moraga Cortez** | Full Stack Developer |
-| **Daniel Lorenzo Ramos** | Backend Developer |
-| **Rodrigo Fernández** | Backend Developer |
-| **Favian Fernando Medina Gemio** | Backend Developer |
-| **Mario Isaac Alberto Cortez** | Backend Developer |
-| **Anghelo Flores** | Backend Developer |
+| Nombre | Rol |GitHub|
+| :--- | :--- |:---|
+| **Carla Vallejos Ari** | Full Stack Developer |https://github.com/vallejos12ari|
+| **Ricardo Thalhuen Moraga Cortez** | Full Stack Developer |https://github.com/Thalhuen|
+| **Daniel Lorenzo Ramos** | Backend Developer |https://github.com/LazaroTupo|
+| **Rodrigo Fernández** | Backend Developer ||
+| **Favian Fernando Medina Gemio** | Backend Developer |https://github.com/fabinnerself|
+| **Mario Isaac Alberto Cortez** | Backend Developer |https://github.com/mariocortezBEST|
+| **Anghelo Flores** | Backend Developer ||
