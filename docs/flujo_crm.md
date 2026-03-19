@@ -1,5 +1,6 @@
-EL FLUJO COMPLETO DE ASIGNACIÓN DE CONVERSACIONES
 
+EL FLUJO COMPLETO DE ASIGNACIÓN DE CONVERSACIONES
+```text
 1️⃣ CLIENTE ENVÍA MENSAJE
    ↓
 2️⃣ CRM RECIBE WEBHOOK
@@ -24,6 +25,7 @@ EL FLUJO COMPLETO DE ASIGNACIÓN DE CONVERSACIONES
    ├── Incrementar contador de carga
    ├── Notificar vía WebSocket
    └── Agente recibe y responde
+```
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────────┐
