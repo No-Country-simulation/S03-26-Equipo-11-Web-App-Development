@@ -1,953 +1,355 @@
-## 📋 SCRUM BACKLOG COMPLETO - CRM STARTUP
----
-
-## 🎯 PRIORIZACIÓN (MoSCoW)
-
-| Prioridad | Significado |
-|-----------|-------------|
-| 🔴 **MUST** | Imprescindible para el MVP |
-| 🟡 **SHOULD** | Importante pero no crítico |
-| 🟢 **COULD** | Mejora deseable |
-| ⚪ **WON'T** | Fuera del alcance inicial |
+# Épicas e Historias de Usuario — CRM Inteligente
 
 ---
 
-## 📦 ÉPICA 1: AUTENTICACIÓN Y SEGURIDAD (Sprint 1)
+## Épica 0: Infraestructura y Soporte
 
-### **Historia 1.1: Registro de usuarios** 🔴 MUST
-**Como** usuario del sistema  (agente/soporte)
-**Quiero** poder registrarme con mi email  
-**Para** acceder al CRM
+Historias transversales necesarias para el correcto funcionamiento del sistema.
+
+---
+
+### HU 0.1 – Autenticación y sesión de usuario
+
+**Como** admin, **quiero** iniciar sesión en el CRM con mis credenciales **para** acceder a las funcionalidades.
+
+> Asumido ya implementado, pero se debe documentar.
 
 **Criterios de aceptación:**
-- [ ] Formulario de registro con nombre, email, contraseña
-- [ ] Validación de email único
-- [ ] Contraseña con requisitos mínimos (6 caracteres, 1 mayúscula, 1 número)
-- [ ] Email de confirmación de cuenta
-- [ ] Captcha anti-bots
-
-**Tareas técnicas:**
-- Crear modelo Usuario en BD
-- Implementar JWT para autenticación
-- Configurar nodemailer para emails de confirmación
-- Diseñar frontend de registro
+- Login con email y contraseña.
+- El sistema mantiene la sesión mediante JWT.
 
 ---
 
-### **Historia 1.2: Inicio de sesión** 🔴 MUST
-**Como** usuario registrado  (agente/administrador/etc)
-**Quiero** iniciar sesión en el sistema  
-**Para** acceder a mis conversaciones y contactos
+### HU 0.2 – Documentación de API (Swagger/OpenAPI)
+
+**Como** desarrollador, **quiero** tener documentación interactiva de los endpoints **para** facilitar el consumo y pruebas.
 
 **Criterios de aceptación:**
-- [ ] Formulario de login con email/contraseña
-- [ ] "Recordarme" (sesión persistente)
-- [ ] Recuperación de contraseña
-- [ ] Bloqueo tras 5 intentos fallidos
-- [ ] Cierre de sesión
+- Se expone una interfaz Swagger en `/swagger-ui.html`.
+- Todos los endpoints están documentados con descripciones, parámetros y ejemplos.
 
 ---
 
-### **Historia 1.3: Perfiles de usuario** 🔴 MUST
-**Como** administrador  
-**Quiero** asignar roles a los usuarios  
-**Para** controlar permisos (agente/supervisor/admin)
+### HU 0.3 – Logging y monitoreo básico
+
+**Como** administrador técnico, **quiero** que el sistema registre errores y eventos importantes **para** poder diagnosticar fallos.
 
 **Criterios de aceptación:**
-- [ ] Roles predefinidos: Agente, Supervisor, Admin
-- [ ] Admin puede cambiar rol de usuarios
-- [ ] Vistas diferentes según rol
-- [ ] No permisos cruzados
+- Archivos de log rotativos.
+- Configuración de niveles (`DEBUG`, `INFO`, `ERROR`) por entorno.
 
 ---
 
-## 📦 ÉPICA 2: GESTIÓN DE CONTACTOS (Sprint 1-2)
+## Épica 1: Gestión de Contactos
 
-### **Historia 2.1: CRUD de contactos** 🔴 MUST
-**Como** agente  
-**Quiero** crear, ver, editar y eliminar contactos  
-**Para** mantener actualizada mi base de datos
+El admin puede administrar el directorio de contactos: crear, buscar, editar, cambiar estado y eliminar.
+
+---
+
+### HU 1.1 – Crear un nuevo contacto
+
+**Como** admin, **quiero** crear un contacto con nombre, email, teléfono y empresa **para** tener registrados mis leads y clientes.
 
 **Criterios de aceptación:**
-- [ ] Formulario completo: nombre, email, teléfono, empresa, cargo
-- [ ] Validación de email y teléfono únicos
-- [ ] Búsqueda por cualquier campo
-- [ ] Paginación de resultados
-- [ ] Eliminación con confirmación
-
-**Tareas técnicas:**
-- Modelo Contacto en BD
-- API REST endpoints
-- Componente ContactList en frontend
-- Formulario reactivo
+- El formulario incluye campos: nombre, email, prefijo telefónico, número y empresa (todos obligatorios excepto empresa).
+- Al enviar, el sistema asigna automáticamente el estado `Lead` y la fecha de último contacto como la fecha actual.
+- El contacto se guarda en la base de datos y se muestra en la lista de contactos.
 
 ---
 
-### **Historia 2.2: Segmentación por funnel** 🔴 MUST
-**Como** agente  
-**Quiero** clasificar contactos por etapa del funnel  
-**Para** dar seguimiento apropiado
+### HU 1.2 – Buscar y filtrar contactos
+
+**Como** admin, **quiero** buscar contactos por nombre o empresa y filtrar por estado **para** encontrar rápidamente a un lead o cliente específico.
 
 **Criterios de aceptación:**
-- [ ] Etapas configurables: Lead, Contactado, Cliente, Inactivo
-- [ ] Vista Kanban (arrastrar y soltar)
-- [ ] Cambiar etapa desde ficha de contacto
-- [ ] Historial de cambios de etapa
-
-**Tareas técnicas:**
-- Tabla funnel_etapas en BD
-- Componente KanbanBoard
-- Lógica drag-and-drop
-- API para mover contactos
+- Un campo de búsqueda libre que filtre por coincidencia parcial en nombre o empresa.
+- Un selector de estado: `Lead`, `Contactado`, `Propuesta`, `Cliente`, `Inactivo`.
+- La lista se actualiza dinámicamente al aplicar los filtros.
+- Soporte de paginación.
 
 ---
 
-### **Historia 2.3: Etiquetas personalizables** 🟡 SHOULD
-**Como** agente  
-**Quiero** etiquetar contactos  
-**Para** filtrar y segmentar fácilmente
+### HU 1.3 – Editar datos de un contacto
+
+**Como** admin, **quiero** editar el nombre, email y empresa de un contacto **para** corregir información desactualizada.
 
 **Criterios de aceptación:**
-- [ ] Crear etiquetas con nombre y color
-- [ ] Múltiples etiquetas por contacto
-- [ ] Filtrar por etiquetas
-- [ ] Buscar por etiqueta
+- Al hacer clic en "Editar" sobre un contacto, se abre un formulario precargado con los datos actuales.
+- Los cambios se guardan y se reflejan en la lista y en el detalle del contacto.
 
 ---
 
-## 📦 ÉPICA 3: INTEGRACIÓN WHATSAPP (Sprint 2-3)
+### HU 1.4 – Actualizar el estado de un contacto
 
-### **Historia 3.1: Conexión con WhatsApp** 🔴 MUST
-**Como** agente  
-**Quiero** conectar un número de WhatsApp al CRM  
-**Para** recibir y enviar mensajes desde la plataforma
+**Como** admin, **quiero** cambiar el estado de un contacto (`Lead → Contactado → Propuesta → Cliente → Inactivo`) **para** reflejar el avance en el funnel de ventas.
 
 **Criterios de aceptación:**
-- [ ] Escaneo de código QR (vía Evolution API)
-- [ ] Estado de conexión (conectado/desconectado)
-- [ ] Reconexión automática
-- [ ] Múltiples números (opcional)
-
-**Tareas técnicas:**
-- Instalar/Configurar Evolution API
-- Crear servicio de conexión WhatsApp
-- Manejar eventos de conexión
-- Guardar instancias en BD
+- Se puede cambiar el estado desde la lista o desde la vista de detalle.
+- El sistema registra el último cambio de estado.
 
 ---
 
-### **Historia 3.2: Recibir mensajes WhatsApp** 🔴 MUST
-**Como** agente  
-**Quiero** recibir mensajes de WhatsApp en tiempo real  
-**Para** responder rápidamente a los clientes
+### HU 1.5 – Eliminar un contacto (soft delete)
+
+**Como** admin, **quiero** eliminar un contacto de forma que ya no aparezca en las listas activas **para** mantener limpia la base de datos sin perder el historial.
 
 **Criterios de aceptación:**
-- [ ] Webhook que recibe mensajes entrantes
-- [ ] Identificar contacto por teléfono (crear si no existe)
-- [ ] Notificación en tiempo real al agente
-- [ ] Guardar mensaje en historial
-
-**Tareas técnicas:**
-- Endpoint POST /webhooks/whatsapp
-- Lógica de matching de contactos
-- WebSockets para notificaciones
-- Almacenamiento en tabla mensajes
+- Al eliminar, el contacto se marca con `deleted_at` y ya no se muestra en los listados por defecto.
+- Opcionalmente, se puede restaurar (no requerido en el flujo inicial).
 
 ---
 
-### **Historia 3.3: Enviar mensajes WhatsApp** 🔴 MUST
-**Como** agente  
-**Quiero** enviar mensajes de WhatsApp desde el CRM  
-**Para** responder sin salir de la plataforma
+### HU 1.6 – Exportar contactos a CSV
+
+**Como** admin, **quiero** exportar la lista de contactos (con los filtros aplicados) a un archivo CSV **para** realizar análisis externos o reportes.
 
 **Criterios de aceptación:**
-- [ ] Interfaz de chat similar a WhatsApp
-- [ ] Envío de texto
-- [ ] Adjuntar imágenes/documentos
-- [ ] Confirmación de entrega (✓, ✓✓)
-
-**Tareas técnicas:**
-- Componente ChatWindow
-- API para enviar mensajes
-- Integración con Evolution API
-- Manejo de archivos
+- Botón de exportar que genera un CSV con todos los campos del contacto.
+- Se respetan los filtros activos (`q`, `state`) al momento de exportar.
+- El archivo se descarga automáticamente.
 
 ---
 
-### **Historia 3.4: Plantillas WhatsApp** 🟢 COULD
-**Como** agente  
-**Quiero** guardar respuestas frecuentes como plantillas  
-**Para** responder más rápido
+## Épica 2: Mensajería WhatsApp
+
+El admin puede enviar y recibir mensajes de WhatsApp, gestionar conversaciones y visualizar métricas básicas.
+
+---
+
+### HU 2.1 – Recibir mensajes de WhatsApp entrantes
+
+**Como** admin, **quiero** que los mensajes que me envían a mi número de WhatsApp lleguen al CRM **para** centralizar todas las comunicaciones.
 
 **Criterios de aceptación:**
-- [ ] Crear plantillas de texto
-- [ ] Acceso rápido desde el chat
-- [ ] Variables personalizables ({{nombre}}, {{empresa}})
+- El sistema expone un webhook (`POST /api/webhooks/whatsapp`) que recibe mensajes de WhatsApp Cloud API.
+- Si el número pertenece a un contacto existente, el mensaje se asocia a ese contacto; si no, se crea un nuevo contacto con estado `Lead`.
+- El mensaje se guarda en la base de datos y se muestra en el chat en tiempo real (WebSocket).
 
 ---
 
-## 📦 ÉPICA 4: INTEGRACIÓN EMAIL (Sprint 3-4)
+### HU 2.2 – Enviar mensajes de WhatsApp a un contacto
 
-### **Historia 4.1: Configuración SMTP** 🔴 MUST
-**Como** administrador  
-**Quiero** configurar el servidor de correo saliente  
-**Para** enviar emails desde el CRM
+**Como** admin, **quiero** enviar mensajes de WhatsApp desde el CRM a cualquier contacto **para** comunicarme sin cambiar de aplicación.
 
 **Criterios de aceptación:**
-- [ ] Configuración SMTP (host, puerto, usuario, contraseña)
-- [ ] Prueba de conexión
-- [ ] Soporte para Gmail, SendGrid, Brevo
-- [ ] Múltiples remitentes
-
-**Tareas técnicas:**
-- Panel de configuración SMTP
-- Validar credenciales
-- Usar Nodemailer para envíos
-- Guardar configuración en BD
+- Interfaz de chat donde selecciono un contacto y escribo un mensaje.
+- Al enviar, el mensaje se registra como saliente y se transmite a través de la API de WhatsApp Cloud.
+- El mensaje aparece en el hilo de conversación con estado `sent`.
 
 ---
 
-### **Historia 4.2: Recibir emails entrantes** 🔴 MUST
-**Como** agente  
-**Quiero** recibir emails de clientes en el CRM  
-**Para** tener todo centralizado
+### HU 2.3 – Visualizar conversación con un contacto
+
+**Como** admin, **quiero** ver el historial completo de mensajes de WhatsApp con cada contacto **para** tener contexto antes de responder.
 
 **Criterios de aceptación:**
-- [ ] Webhook para inbound email
-- [ ] Parsear contenido y adjuntos
-- [ ] Asociar a contacto existente (por email)
-- [ ] Notificación en tiempo real
-
-**Tareas técnicas:**
-- Endpoint POST /webhooks/email
-- Integración con Brevo Inbound/SendGrid Parse
-- Procesar attachments
-- Vincular con conversaciones
+- Al seleccionar un contacto, se muestran los mensajes ordenados cronológicamente (entrantes y salientes).
+- Se puede hacer scroll para cargar mensajes antiguos (paginación mediante `before` timestamp).
 
 ---
 
-### **Historia 4.3: Enviar emails desde CRM** 🔴 MUST
-**Como** agente  
-**Quiero** enviar emails desde el CRM  
-**Para** gestionar toda la comunicación en un lugar
+### HU 2.4 – Ver métricas básicas de WhatsApp
+
+**Como** admin, **quiero** conocer el total de mensajes enviados y recibidos **para** medir mi actividad en el canal.
 
 **Criterios de aceptación:**
-- [ ] Editor de emails (formato básico)
-- [ ] Adjuntar archivos
-- [ ] Guardar en historial del contacto
-- [ ] Copia en Bandeja de enviados
-
-**Tareas técnicas:**
-- Componente EmailComposer
-- API de envío con Nodemailer
-- Subida de archivos
-- Integración con historial
+- En el dashboard de métricas se muestran contadores de mensajes enviados y recibidos (acumulados o en un período).
+- Datos disponibles vía `GET /api/whatsapp/metrics/total` y `GET /api/whatsapp/metrics/weekly`.
 
 ---
 
-### **Historia 4.4: Plantillas de email** 🟡 SHOULD
-**Como** agente  
-**Quiero** usar plantillas predefinidas  
-**Para** agilizar respuestas comunes
+## Épica 3: Mensajería Email
+
+El admin puede enviar correos usando plantillas, ver la bandeja de entrada y gestionar hilos de conversación.
+
+---
+
+### HU 3.1 – Crear y gestionar plantillas de email
+
+**Como** admin, **quiero** crear plantillas de correo con nombre, asunto y cuerpo HTML **para** reutilizarlas en envíos personalizados.
 
 **Criterios de aceptación:**
-- [ ] CRUD de plantillas
-- [ ] Variables ({{nombre}}, {{empresa}})
-- [ ] Previsualización
-- [ ] Selección rápida al redactar
+- CRUD completo de plantillas: crear (`POST`), editar (`PUT`) y eliminar (`DELETE` hard delete).
+- El editor de cuerpo HTML permite formato enriquecido (puede usarse un editor WYSIWYG).
 
 ---
 
-## 📦 ÉPICA 5: INTEGRACIÓN SMS (Sprint 4)
+### HU 3.2 – Enviar un email a un contacto usando una plantilla
 
-### **Historia 5.1: Configuración SMS** 🟡 SHOULD
-**Como** administrador  
-**Quiero** configurar un proveedor SMS  
-**Para** enviar mensajes de texto
+**Como** admin, **quiero** seleccionar un contacto y una plantilla y enviar un correo personalizado **para** agilizar la comunicación.
 
 **Criterios de aceptación:**
-- [ ] Integración con Twilio (crédito inicial)
-- [ ] Verificar número
-- [ ] Configurar webhook de recepción
-
-**Tareas técnicas:**
-- Registro en Twilio
-- Configuración de credenciales
-- Endpoint para webhooks
+- Formulario que lista contactos y plantillas disponibles.
+- Permite previsualizar el correo antes de enviar (con variables interpoladas: `nombre`, `empresa`).
+- Al enviar, se utiliza el servidor SMTP configurado y se registra el envío en el log.
 
 ---
 
-### **Historia 5.2: Envío y recepción SMS** 🟡 SHOULD
-**Como** agente  
-**Quiero** enviar y recibir SMS  
-**Para** contactar con clientes sin WhatsApp
+### HU 3.3 – Ver correos recibidos (bandeja de entrada)
+
+**Como** admin, **quiero** ver los correos que llegan al buzón configurado **para** gestionar respuestas dentro del CRM.
 
 **Criterios de aceptación:**
-- [ ] Enviar SMS desde el CRM
-- [ ] Recibir SMS (webhook)
-- [ ] Unificado en el mismo historial
-- [ ] Notificaciones
+- Lista de correos entrantes con remitente, asunto y fecha (`GET /api/email/inbox`).
+- Al hacer clic, se muestra el cuerpo completo del correo.
+- Los correos se asocian automáticamente al contacto si el remitente coincide con algún email registrado.
 
 ---
 
-## 📦 ÉPICA 6: TAREAS Y RECORDATORIOS (Sprint 2-3)
+### HU 3.4 – Visualizar hilo de conversación por email con un contacto
 
-### **Historia 6.1: Crear tareas** 🔴 MUST
-**Como** agente  
-**Quiero** crear tareas de seguimiento  
-**Para** no olvidar acciones importantes
+**Como** admin, **quiero** ver todos los correos intercambiados con un contacto (enviados y recibidos) **para** tener una visión completa de la relación.
 
 **Criterios de aceptación:**
-- [ ] Título, descripción, fecha límite
-- [ ] Prioridad (baja, media, alta, urgente)
-- [ ] Asociar a contacto específico
-- [ ] Estado (pendiente, en progreso, completada)
-
-**Tareas técnicas:**
-- Modelo Tarea en BD
-- CRUD de tareas
-- Relación con contactos
-- Vista de tareas pendientes
+- Al seleccionar un contacto, se muestra un hilo con los correos ordenados cronológicamente.
+- Se distinguen visualmente los correos enviados (salientes) de los recibidos (entrantes).
 
 ---
 
-### **Historia 6.2: Recordatorios automáticos** 🟡 SHOULD
-**Como** agente  
-**Quiero** recibir recordatorios de tareas  
-**Para** cumplir plazos
+### HU 3.5 – Ver métricas de email
+
+**Como** admin, **quiero** conocer el total de correos enviados, recibidos y la tasa de respuesta **para** evaluar la efectividad del canal.
 
 **Criterios de aceptación:**
-- [ ] Notificación push antes de la fecha límite
-- [ ] Email recordatorio
-- [ ] Configurar tiempo de aviso (1h, 24h, etc.)
-- [ ] Marcar como leído el recordatorio
-
-**Tareas técnicas:**
-- Servicio de jobs programados (node-cron)
-- Notificaciones push (WebSocket/Service Workers)
-- Plantillas de email recordatorio
+- KPIs en el dashboard: correos enviados, recibidos y tasa de respuesta.
+- La tasa de respuesta se calcula como el porcentaje de correos enviados que recibieron respuesta.
 
 ---
 
-## 📦 ÉPICA 7: PANEL DE MÉTRICAS (Sprint 3-4)
+## Épica 4: Recordatorios Inteligentes
 
-### **Historia 7.1: KPIs básicos** 🔴 MUST
-**Como** supervisor  
-**Quiero** ver métricas clave en dashboard  
-**Para** evaluar el rendimiento
+El admin puede programar recordatorios asociados a contactos, con notificaciones automáticas por WhatsApp y/o email.
+
+---
+
+### HU 4.1 – Crear un recordatorio
+
+**Como** admin, **quiero** crear un recordatorio con título, descripción, contacto asociado, prioridad, fecha/hora y método de notificación **para** no olvidar tareas importantes.
 
 **Criterios de aceptación:**
-- [ ] Contactos activos hoy
-- [ ] Mensajes enviados (hoy/semana/mes)
-- [ ] Tasa de respuesta promedio
-- [ ] Tareas pendientes
-
-**Tareas técnicas:**
-- Tabla metricas_diarias en BD
-- Consultas agregadas
-- Componentes de KPIs en frontend
-- Actualización en tiempo real
+- Formulario con campos obligatorios: título, descripción, contacto, prioridad (`ALTA`, `MEDIA`, `BAJA`), fecha, hora y métodos de notificación (`EMAIL`, `WHATSAPP` o ambos).
+- Opción de configurar la anticipación en minutos antes de la fecha/hora programada.
+- Al guardar, el backend registra el recordatorio con `done = false` (estado pendiente).
 
 ---
 
-### **Historia 7.2: Gráficos de actividad** 🟡 SHOULD
-**Como** supervisor  
-**Quiero** ver gráficos de actividad  
-**Para** identificar tendencias
+### HU 4.2 – Listar y filtrar recordatorios
+
+**Como** admin, **quiero** ver mis recordatorios pendientes, vencidos y completados, y filtrarlos por fecha o contacto **para** priorizar mi trabajo.
 
 **Criterios de aceptación:**
-- [ ] Gráfico de mensajes por día
-- [ ] Distribución por canal (WhatsApp/Email/SMS)
-- [ ] Top 5 agentes por actividad
-- [ ] Filtros por fecha
-
-**Tareas técnicas:**
-- Integración con Chart.js/Recharts
-- Endpoints para datos agregados
-- Filtros interactivos
+- Lista con filtros por estado (`PENDIENTE`, `VENCIDO`, `COMPLETADO`), contacto (`contact_id`) y rango de fechas (`from_date`, `to_date`).
+- Cada fila muestra prioridad, fecha/hora, contacto asociado y estado actual.
 
 ---
 
-### **Historia 7.3: Exportar reportes** 🟡 SHOULD
-**Como** supervisor  
-**Quiero** exportar datos a CSV/PDF  
-**Para** compartir con el equipo
+### HU 4.3 – Reprogramar un recordatorio
+
+**Como** admin, **quiero** cambiar la fecha, hora o método de notificación de un recordatorio existente **para** ajustarlo a cambios en mi agenda.
 
 **Criterios de aceptación:**
-- [ ] Exportar contactos (CSV)
-- [ ] Exportar reporte de actividad (PDF)
-- [ ] Seleccionar columnas a exportar
-- [ ] Filtros aplicados
-
-**Tareas técnicas:**
-- json2csv para CSV
-- Puppeteer/pdfkit para PDF
-- Descarga automática en frontend
+- Desde la lista, la opción "Reprogramar" permite editar cualquier campo del recordatorio (`PUT /api/reminders/{id}`).
+- Si el recordatorio ya está completado, no se puede reprogramar (o se puede reiniciar según las reglas de negocio definidas).
 
 ---
 
-## 📦 ÉPICA 8: VISTAS PERSONALIZADAS (Sprint 4)
+### HU 4.4 – Recibir notificaciones automáticas de recordatorios
 
-### **Historia 8.1: Guardar filtros** 🟢 COULD
-**Como** agente  
-**Quiero** guardar mis filtros favoritos  
-**Para** acceder rápidamente
+**Como** admin, **quiero** recibir notificaciones por WhatsApp y/o email en la fecha y hora programada **para** que el sistema me recuerde la tarea.
 
 **Criterios de aceptación:**
-- [ ] Guardar combinación de filtros
-- [ ] Nombrar la vista
-- [ ] Vista predeterminada
-- [ ] Compartir vistas (supervisor)
-
-**Tareas técnicas:**
-- Modelo VistasGuardadas en BD
-- Serializar filtros JSON
-- Aplicar filtros guardados
+- Un scheduler revisa cada minuto los recordatorios cuya fecha/hora sea igual o anterior a la actual y que tengan `done = false`.
+- Para cada uno, envía el mensaje y/o correo según los métodos configurados en el recordatorio.
+- Tras el envío exitoso, el recordatorio se marca como completado (`done = true`).
 
 ---
 
-### **Historia 8.2: Vistas de tabla personalizables** 🟢 COULD
-**Como** agente  
-**Quiero** elegir qué columnas ver  
-**Para** mostrar solo información relevante
+### HU 4.5 – Ver historial de notificaciones enviadas
+
+**Como** admin, **quiero** consultar qué notificaciones se enviaron para cada recordatorio **para** verificar que se cumplió.
 
 **Criterios de aceptación:**
-- [ ] Seleccionar columnas visibles
-- [ ] Reordenar columnas
-- [ ] Guardar preferencias
-- [ ] Reset a valores por defecto
+- En el detalle del recordatorio, se listan los intentos de notificación: fecha, método utilizado y resultado (`exitoso` / `fallido`).
 
 ---
 
-## 📦 ÉPICA 9: INTERFAZ DE CHAT UNIFICADO (Sprint 2-3)
+## Épica 5: Métricas y Analítica
 
-### **Historia 9.1: Bandeja unificada** 🔴 MUST
-**Como** agente  
-**Quiero** ver todos los mensajes (WhatsApp, Email, SMS) en una sola bandeja  
-**Para** gestionar todo desde un lugar
+El admin puede visualizar KPIs, gráficos y reportes para medir el desempeño del CRM y del funnel de ventas.
+
+---
+
+### HU 5.1 – Ver KPIs generales
+
+**Como** admin, **quiero** ver en un panel los indicadores clave (contactos activos, mensajes enviados, correos enviados, tasa de respuesta y tasa de conversión) **para** tener una visión rápida del estado del negocio.
 
 **Criterios de aceptación:**
-- [ ] Lista de conversaciones ordenadas por última actividad
-- [ ] Indicador de canal (ícono WhatsApp/Email/SMS)
-- [ ] Mensajes no leídos destacados
-- [ ] Búsqueda en conversaciones
-
-**Tareas técnicas:**
-- Query unificada de mensajes
-- Componente ConversationList
-- Badges por canal
-- WebSocket para nuevos mensajes
+- El dashboard principal muestra tarjetas con cada KPI (`GET /api/analytics/kpis`).
+- Los contactos activos excluyen los que tienen estado `Inactivo`.
+- Los valores se actualizan en tiempo real o con recarga periódica.
 
 ---
 
-### **Historia 9.2: Vista de conversación con historial completo** 🔴 MUST
-**Como** agente  
-**Quiero** ver todo el historial con un contacto  
-**Para** tener contexto completo
+### HU 5.2 – Ver gráfico de distribución por estado (funnel)
+
+**Como** admin, **quiero** ver un histograma que muestre cuántos contactos hay en cada etapa del funnel **para** identificar cuellos de botella.
 
 **Criterios de aceptación:**
-- [ ] Todos los mensajes ordenados cronológicamente
-- [ ] Diferenciar canal por color/ícono
-- [ ] Adjuntos visibles
-- [ ] Información del contacto visible siempre
-
-**Tareas técnicas:**
-- Componente ConversationThread
-- Agrupar por fecha
-- Renderizar diferentes tipos de mensaje
-- Sidebar con info de contacto
+- Gráfico de barras o circular con los estados: `Lead`, `Contactado`, `Propuesta`, `Cliente`, `Inactivo` (`GET /api/analytics/funnel`).
+- Al hacer clic en una barra se puede filtrar la lista de contactos (opcional).
 
 ---
 
-### **Historia 9.3: Respuesta rápida con selector de canal** 🟡 SHOULD
-**Como** agente  
-**Quiero** elegir el canal al responder  
-**Para** comunicarme como el cliente prefiera
+### HU 5.3 – Ver actividad semanal de mensajes y correos
+
+**Como** admin, **quiero** ver un gráfico de barras con la cantidad de mensajes y correos enviados por día **para** entender mi actividad semanal.
 
 **Criterios de aceptación:**
-- [ ] Botones para WhatsApp/Email/SMS
-- [ ] Recordar último canal usado
-- [ ] Sugerir canal preferido del cliente
+- Gráfico con dos series: WhatsApp enviados y emails enviados, agrupados por día (`GET /api/analytics/activity`).
+- El período por defecto son los últimos 7 días, con opción de configurar rango y granularidad (`day`, `week`, `month`).
 
 ---
 
-## 📦 ÉPICA 10: CONFIGURACIÓN DEL SISTEMA (Sprint 1 y 4)
+### HU 5.4 – Exportar reporte en PDF
 
-### **Historia 10.1: Configuración de etiquetas predefinidas** 🟡 SHOULD
-**Como** administrador  
-**Quiero** definir etiquetas globales  
-**Para** estandarizar la segmentación
+**Como** admin, **quiero** exportar un reporte con todas las métricas en formato PDF **para** compartir con el equipo o archivar.
 
 **Criterios de aceptación:**
-- [ ] CRUD de etiquetas
-- [ ] Colores personalizables
-- [ ] Etiquetas por defecto al crear contacto
+- Botón "Exportar reporte" que genera un PDF con los datos actuales del dashboard (`GET /api/analytics/report`).
+- El PDF incluye la fecha de generación y opcionalmente el logo de la empresa.
 
 ---
 
-### **Historia 10.2: Configuración de etapas del funnel** 🟡 SHOULD
-**Como** administrador  
-**Quiero** personalizar las etapas del funnel  
-**Para** adaptarme al proceso de ventas
+## Épica 6: Configuración
+
+El admin puede configurar las integraciones con WhatsApp y email (SMTP) de forma centralizada.
+
+---
+
+### HU 6.1 – Configurar número de WhatsApp
+
+**Como** admin, **quiero** indicar el número de teléfono desde el que se enviarán los mensajes de WhatsApp **para** que el CRM lo use en la API de Meta.
 
 **Criterios de aceptación:**
-- [ ] Crear, editar, reordenar etapas
-- [ ] Activar/desactivar etapas
-- [ ] Colores por etapa
+- Formulario donde se ingresa el número con código de país.
+- Al guardar, se valida opcionalmente la conexión con la WhatsApp Cloud API.
 
 ---
 
-## 📋 SPRINT PLANNING SUGERIDO
+### HU 6.2 – Configurar servidor SMTP
 
-| Sprint | Duración | Épocas | Historias |
-|--------|----------|--------|-----------|
-| **Sprint 1** | 2 semanas | Épica 1, Épica 2 | 1.1, 1.2, 1.3, 2.1, 2.2 |
-| **Sprint 2** | 2 semanas | Épica 3, Épica 9 | 3.1, 3.2, 3.3, 9.1, 9.2 |
-| **Sprint 3** | 2 semanas | Épica 4, Épica 6 | 4.1, 4.2, 4.3, 6.1, 6.2 |
-| **Sprint 4** | 2 semanas | Épica 5, Épica 7, Épica 8 | 5.1, 5.2, 7.1, 7.2, 8.1 |
-| **Sprint 5** | 2 semanas | Refinamiento y pruebas | 3.4, 4.4, 7.3, 8.2, 10.1, 10.2 |
+**Como** admin, **quiero** ingresar los datos de mi servidor SMTP (host, puerto, usuario, contraseña) **para** poder enviar correos desde el CRM.
+
+**Criterios de aceptación:**
+- Formulario con campos: servidor, puerto, usuario y contraseña.
+- Opción de probar la conexión mediante el envío de un correo de prueba antes de guardar.
 
 ---
 
-## 📊 ESTIMACIÓN EN PUNTOS DE HISTORIA
-
-| Historia | Puntos | Dificultad |
-|----------|--------|------------|
-| 1.1 Registro | 3 | Baja |
-| 1.2 Login | 2 | Muy baja |
-| 1.3 Roles | 5 | Media |
-| 2.1 CRUD contactos | 8 | Alta |
-| 2.2 Funnel | 5 | Media |
-| 2.3 Etiquetas | 3 | Baja |
-| 3.1 Conexión WhatsApp | 8 | Alta |
-| 3.2 Recibir WhatsApp | 5 | Media |
-| 3.3 Enviar WhatsApp | 5 | Media |
-| 4.1 Config SMTP | 3 | Baja |
-| 4.2 Recibir emails | 5 | Media |
-| 4.3 Enviar emails | 5 | Media |
-| 6.1 Tareas | 3 | Baja |
-| 6.2 Recordatorios | 5 | Media |
-| 7.1 KPIs | 3 | Baja |
-| 9.1 Bandeja unificada | 8 | Alta |
-| 9.2 Historial | 5 | Media |
-
-**Total MVP (Must + Should):** ~70 puntos (4-5 sprints de 2 semanas)
-
----
-
-## 🎯 DEFINICIÓN DE "DONE" (DoD)
-
-Para cada historia:
-- [ ] Código desarrollado y commiteado
-- [ ] Pruebas unitarias pasan (>80% cobertura)
-- [ ] Documentación de API actualizada
-- [ ] Integración con BD probada
-- [ ] Frontend implementado (si aplica)
-- [ ] Responsive design básico
-- [ ] Sin errores en consola
-- [ ] Code review aprobado
-- [ ] Desplegado en entorno de pruebas
- ## 👥 TODOS LOS USUARIOS (STAKEHOLDERS) DEL SISTEMA CRM
-
-lista completa de **todos los actores** que interactúan con el sistema:
-
----
-
-## 🎯 CLASIFICACIÓN POR TIPO DE USUARIO
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    SISTEMA CRM COMPLETO                         │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  USUARIOS INTERNOS (Trabajan DENTRO del CRM)                    │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ • Agente/Soporte     → Usa el CRM para atender clientes │   │
-│  │ • Supervisor/Manager → Supervisa equipos y métricas     │   │
-│  │ • Administrador      → Configura el sistema             │   │
-│  │ • Director/Ventas    → Ve reportes estratégicos         │   │
-│  │ • Onboarding         → Da de alta nuevos clientes       │   │
-│  │ • Marketing          → Crea campañas y segmenta         │   │
-│  │ • Facturación        → Gestiona pagos (si aplica)       │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                  │
-│  USUARIOS EXTERNOS (Interactúan FUERA del CRM)                  │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ • Cliente/Lead       → Recibe comunicaciones            │   │
-│  │ • Visitante web      → Usa widget de chat               │   │
-│  │ • Proveedor/Partner  → Se comunica con el equipo        │   │
-│  │ • Inversores         → Reciben reportes (opcional)      │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                  │
-│  USUARIOS TÉCNICOS (Gestionan la plataforma)                    │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ • Desarrollador      → Mantiene y mejora el CRM         │   │
-│  │ • DevOps             → Gestiona servidores y despliegues│   │
-│  │ • DBA                → Optimiza base de datos           │   │
-│  │ • Auditor            → Revisa logs y seguridad          │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 👨‍💼 USUARIOS INTERNOS (DETALLADOS)
-
-### **1. AGENTE / SOPORTE** 👤 (Ya lo vimos)
-El usuario principal del día a día.
-
-**Objetivo:** Atender clientes y leads eficientemente
-
-**Necesidades:**
-- Bandeja unificada de mensajes
-- Respuestas rápidas
-- Historial completo del cliente
-- Tareas y recordatorios
-- Métricas personales
-
----
-
-### **2. SUPERVISOR / MANAGER** 👥
-
-**Como** supervisor de equipo  
-**Quiero** monitorear el rendimiento de mis agentes  
-**Para** asegurar la calidad del servicio y cumplir objetivos
-
-**Necesidades específicas:**
-```
-📊 PANEL DE SUPERVISOR
-├── Ver actividad de TODOS los agentes
-├── Reasignar contactos entre agentes
-├── Alertas de conversaciones sin respuesta (+24h)
-├── Métricas comparativas entre agentes
-├── Exportar reportes del equipo
-├── Configurar objetivos (KPIs)
-└── Escalar conversaciones complejas
-```
-
-**Historias de usuario adicionales:**
-```javascript
-// Historia: Dashboard de equipo
-Como supervisor
-Quiero ver un dashboard con el rendimiento de todos mis agentes
-Para identificar quién necesita ayuda o reconocimiento
-
-Criterios:
-- Top 5 agentes por conversaciones resueltas
-- Tasa de respuesta por agente
-- Alertas de bajo rendimiento
-- Comparativa vs objetivos
-```
-
----
-
-### **3. ADMINISTRADOR DEL SISTEMA** ⚙️
-
-**Como** administrador técnico  
-**Quiero** configurar y mantener el sistema  
-**Para** que todo funcione correctamente
-
-**Necesidades específicas:**
-```
-⚙️ PANEL DE ADMIN
-├── Gestión de usuarios (alta/baja/roles)
-├── Configuración de integraciones (WhatsApp, Email)
-├── Personalización del funnel y etiquetas
-├── Ver logs del sistema
-├── Configurar backups
-├── Gestión de plantillas globales
-└── Auditoría de cambios
-```
-
-**Historias de usuario:**
-```javascript
-// Historia: Configurar integraciones
-Como administrador
-Quiero conectar el CRM con WhatsApp y email
-Para que los agentes puedan comunicarse
-
-Criterios:
-- Formulario para credenciales API
-- Probar conexión antes de guardar
-- Estado de conexión (verde/rojo)
-- Logs de errores de integración
-```
-
----
-
-### **4. DIRECTOR / VENTAS** 📈
-
-**Como** director comercial  
-**Quiero** ver métricas estratégicas  
-**Para** tomar decisiones de negocio
-
-**Necesidades específicas:**
-```
-📈 DASHBOARD ESTRATÉGICO
-├── Tasa de conversión lead → cliente
-├── Ingresos estimados por pipeline
-├── Tendencias mensuales/anuales
-├── ROI por canal (WhatsApp vs Email)
-├── Previsión de ventas
-└── Exportar presentaciones (PDF)
-```
-
-**Historias de usuario:**
-```javascript
-// Historia: Reportes ejecutivos
-Como director
-Quiero ver reportes consolidados del mes
-Para presentar resultados al consejo
-
-Criterios:
-- Gráficos de tendencias
-- Comparativa vs meses anteriores
-- Exportar a PDF con logo empresa
-- Enviar por email automáticamente
-```
-
----
-
-### **5. ONBOARDING / ÉXITO DEL CLIENTE** 🚀
-
-**Como** especialista en onboarding  
-**Quiero** dar la bienvenida a nuevos clientes  
-**Para** asegurar una buena primera experiencia
-
-**Necesidades específicas:**
-- Automatizar emails de bienvenida
-- Checklists de onboarding
-- Programar llamadas de seguimiento
-- Recibir alertas cuando un cliente no interactúa
-
----
-
-### **6. MARKETING** 📢
-
-**Como** marketer  
-**Quiero** segmentar contactos y enviar campañas  
-**Para** nutrir leads y promocionar productos
-
-**Necesidades específicas:**
-```
-📧 HERRAMIENTAS DE MARKETING
-├── Segmentación avanzada (etiquetas + comportamiento)
-├── Crear campañas de email masivas
-├── Programar envíos
-├── A/B testing de asuntos
-├── Métricas de apertura/clicks
-└── Gestión de bajas (unsubscribe)
-```
-
-**Historias de usuario:**
-```javascript
-// Historia: Campañas de email
-Como marketer
-Quiero enviar newsletters a segmentos específicos
-Para mantener engagement con leads
-
-Criterios:
-- Seleccionar contactos por etiquetas
-- Editor de emails con plantillas
-- Programar fecha/hora
-- Ver estadísticas post-envío
-```
-
----
-
-### **7. FACTURACIÓN / ADMINISTRACIÓN** 💰
-
-**Como** administrador de facturación  
-**Quiero** gestionar pagos y facturas de clientes  
-**Para** mantener las cuentas al día
-
-**Necesidades específicas:**
-- Asociar contactos con datos de facturación
-- Registrar pagos recibidos
-- Enviar facturas automáticas
-- Alertas de pagos vencidos
-- Reportes de ingresos
-
----
-
-## 👥 USUARIOS EXTERNOS (DETALLADOS)
-
-### **1. CLIENTE / LEAD** 👤
-
-**Como** cliente potencial  
-**Quiero** comunicarme con la empresa por mis canales preferidos  
-**Para** resolver dudas o comprar productos
-
-**NO USA EL CRM DIRECTAMENTE**, pero interactúa a través de:
-- WhatsApp (app normal)
-- Email (Gmail/Outlook)
-- SMS (app de mensajes)
-- Widget en la web
-
----
-
-### **2. VISITANTE WEB** 🌐
-
-**Como** visitante del sitio web  
-**Quiero** chatear con soporte sin salir de la página  
-**Para** obtener ayuda inmediata
-
-**Interacción:**
-- Usa el widget flotante de Brevo
-- No necesita registrarse
-- Puede dejar su email para contacto futuro
-
----
-
-### **3. PROVEEDOR / PARTNER** 🤝
-
-**Como** proveedor externo  
-**Quiero** comunicarme con el equipo de compras  
-**Para** coordinar entregas o cotizaciones
-
-**Características:**
-- Contacto específico asignado
-- Historial de conversaciones
-- Documentos compartidos
-
----
-
-### **4. INVERSOR / CONSEJO** 📊
-
-**Como** inversor  
-**Quiero** recibir reportes periódicos del negocio  
-**Para** evaluar el rendimiento de la inversión
-
-**Interacción:**
-- No accede al CRM directamente
-- Recibe reportes por email
-- Revisa dashboards públicos (opcional)
-
----
-
-## 🔧 USUARIOS TÉCNICOS (DETALLADOS)
-
-### **1. DESARROLLADOR** 💻
-
-**Como** desarrollador del CRM  
-**Quiero** mantener y mejorar el código  
-**Para** añadir funcionalidades y corregir bugs
-
-**Necesidades:**
-- Documentación clara de API
-- Entorno de desarrollo local
-- Logs detallados
-- Tests automatizados
-- Versionado (Git)
-
----
-
-### **2. DEVOPS** 🚢
-
-**Como** DevOps  
-**Quiero** gestionar el despliegue y la infraestructura  
-**Para** asegurar disponibilidad 24/7
-
-**Necesidades:**
-- Scripts de despliegue automático
-- Monitorización de servidores
-- Alertas de caídas
-- Backups automáticos
-- Escalado cuando sea necesario
-
----
-
-### **3. DBA (Database Administrator)** 🗄️
-
-**Como** administrador de base de datos  
-**Quiero** optimizar consultas y mantener la integridad  
-**Para** que el CRM sea rápido y confiable
-
-**Necesidades:**
-- Acceso a queries lentas
-- Optimización de índices
-- Backups y restauración
-- Limpieza de datos antiguos
-
----
-
-### **4. AUDITOR** 🔍
-
-**Como** auditor de seguridad  
-**Quiero** revisar logs de acceso y cambios  
-**Para** asegurar cumplimiento normativo (GDPR, etc.)
-
-**Necesidades:**
-- Logs de todas las acciones importantes
-- Trazabilidad de cambios en datos sensibles
-- Exportación de auditorías
-- Alertas de actividad sospechosa
-
----
-
-## 📊 MATRIZ DE PERMISOS COMPLETA
-
-| Funcionalidad | Agente | Supervisor | Admin | Director | Marketing | Facturación |
-|--------------|--------|------------|-------|----------|-----------|-------------|
-| **Ver mis conversaciones** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **Ver todas conversaciones** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **Gestionar contactos propios** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **Gestionar todos contactos** | ❌ | ✅ | ✅ | ❌ | ✅ (solo ver) | ❌ |
-| **Métricas personales** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **Métricas equipo** | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Métricas estratégicas** | ❌ | ⚠️ (limitado) | ✅ | ✅ | ⚠️ | ✅ |
-| **Enviar campañas masivas** | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ |
-| **Ver facturación** | ❌ | ❌ | ✅ | ⚠️ | ❌ | ✅ |
-| **Configurar integraciones** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| **Gestionar usuarios** | ❌ | ⚠️ (su equipo) | ✅ | ❌ | ❌ | ❌ |
-| **Exportar datos** | Solo propios | Todo equipo | Todos | Solo reportes | Segmentos | Solo facturación |
-| **Ver logs sistema** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-
----
-
-## 🎯 RESUMEN DE STAKEHOLDERS
-
-| Rol | Prioridad en MVP | ¿Usa CRM? | Objetivo principal |
-|-----|------------------|-----------|-------------------|
-| **Agente** | 🔴 MUST | ✅ Sí | Atender clientes |
-| **Supervisor** | 🟡 SHOULD | ✅ Sí | Gestionar equipo |
-| **Admin** | 🟡 SHOULD | ✅ Sí | Configurar sistema |
-| **Director** | 🟢 COULD | ✅ Sí (limitado) | Visión estratégica |
-| **Marketing** | 🟢 COULD | ✅ Sí | Campañas |
-| **Facturación** | ⚪ WON'T | ⚠️ Futuro | Cobros |
-| **Cliente** | 🔴 MUST | ❌ No | Recibir atención |
-| **Visitante web** | 🔴 MUST | ❌ No | Contactar |
-| **Desarrollador** | 🔴 MUST | ⚠️ Backend | Mantener código |
-
----
-
-## 📋 BACKLOG ADICIONAL POR NUEVOS ROLES
-
-### **Para SUPERVISOR (Prioridad SHOULD)**
-```javascript
-- Ver dashboard de equipo
-- Reasignar conversaciones
-- Alertas de SLA incumplido
-- Reportes comparativos
-- Configurar objetivos
-```
-
-### **Para DIRECTOR (Prioridad COULD)**
-```javascript
-- Reportes ejecutivos
-- Previsión de ventas
-- Tendencias de conversión
-- Exportar presentaciones
-- Métricas por producto/servicio
-```
-
-### **Para MARKETING (Prioridad COULD)**
-```javascript
-- Segmentación avanzada
-- Campañas de email masivas
-- A/B testing
-- Analíticas de campañas
-- Landing pages (futuro)
-```
-
- 
+## Notas de planificación
+
+- Las historias están ordenadas por épica para facilitar la planificación de sprints.
+- Se recomienda asignar story points durante el sprint planning según complejidad técnica.
+- Las prioridades pueden ajustarse en función del MVP definido por el equipo.
+- Las integraciones con WhatsApp Cloud API y SMTP requieren credenciales válidas y pruebas de conexión antes de pasar a producción.
+- La Épica 0 debe completarse antes de iniciar cualquier otra épica.
