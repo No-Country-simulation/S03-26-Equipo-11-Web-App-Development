@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 160 84% 39%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 20% 95%;
+    --secondary-foreground: 220 25% 10%;
+
+    --muted: 215 20% 95%;
+    --muted-foreground: 215 15% 47%;
+
+    --accent: 215 20% 93%;
+    --accent-foreground: 220 25% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 20% 91%;
+    --input: 215 20% 91%;
+    --ring: 160 84% 39%;
+
+    --radius: 0.625rem;
+
+    --sidebar-background: 220 25% 10%;
+    --sidebar-foreground: 215 20% 75%;
+    --sidebar-primary: 160 84% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 16%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 20% 18%;
+    --sidebar-ring: 160 84% 39%;
+
+    --whatsapp: 142 70% 45%;
+    --whatsapp-foreground: 0 0% 100%;
+    --email: 217 91% 60%;
+    --email-foreground: 0 0% 100%;
+
+    --funnel-new: 217 91% 60%;
+    --funnel-contacted: 38 92% 50%;
+    --funnel-qualified: 160 84% 39%;
+    --funnel-proposal: 271 81% 56%;
+    --funnel-won: 142 70% 45%;
+    --funnel-lost: 0 72% 51%;
+
+    --chart-1: 160 84% 39%;
+    --chart-2: 217 91% 60%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 271 81% 56%;
+    --chart-5: 0 72% 51%;
+
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .dark {
+    --background: 220 25% 7%;
+    --foreground: 210 20% 95%;
+    --card: 220 25% 10%;
+    --card-foreground: 210 20% 95%;
+    --popover: 220 25% 10%;
+    --popover-foreground: 210 20% 95%;
+    --primary: 160 84% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 16%;
+    --secondary-foreground: 210 20% 95%;
+    --muted: 220 20% 16%;
+    --muted-foreground: 215 15% 55%;
+    --accent: 220 20% 18%;
+    --accent-foreground: 210 20% 95%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 20% 95%;
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 160 84% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer components {
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 text-sm font-medium;
+  }
+  .sidebar-link-active {
+    @apply bg-sidebar-accent text-sidebar-primary;
+  }
+  .kpi-card {
+    @apply bg-card rounded-xl border p-5 shadow-sm hover:shadow-md transition-shadow;
+  }
+  .funnel-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .chat-bubble-sent {
+    @apply bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 max-w-[75%] ml-auto;
+  }
+  .chat-bubble-received {
+    @apply bg-muted text-foreground rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[75%];
+  }
+}
