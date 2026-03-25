@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+  { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/contacts", icon: Users, label: "Contactos" },
   { to: "/whatsapp", icon: MessageCircle, label: "WhatsApp" },
   { to: "/email", icon: Mail, label: "Email" },
@@ -42,7 +42,7 @@ export default function CRMLayout() {
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.to === "/"}
+              end={item.to === "/dashboard"}
               className={({ isActive }) =>
                 `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
               }
