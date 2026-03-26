@@ -259,7 +259,7 @@ Actualmente, todos los endpoints están abiertos para facilitar el desarrollo. P
 
 ## 🚀 Próximos Pasos (Módulos Pendientes)
 
-Los siguientes módulos están identificados para futuras implementaciones:
+Los siguientes módulos y mejoras están identificados para futuras implementaciones o revisión:
 
 1.  **Plantillas de Email** - Gestión de templates.
 2.  **Envío de Emails** - Integración con servicios SMTP.
@@ -267,3 +267,8 @@ Los siguientes módulos están identificados para futuras implementaciones:
 4.  **Recordatorios** - Gestión de recordatorios con scheduler.
 5.  **Métricas/Analytics** - Paneles con KPIs y reportes.
 6.  **Configuración** - Panel de ajustes.
+7.  **Implementación de Seguridad en Endpoints de Contactos:** Añadir autenticación y autorización (ej. JWT) para los endpoints de contactos, ya que actualmente están abiertos para desarrollo.
+8.  **Gestión de Variables de Entorno para Despliegue:** Configurar variables de entorno (ej. usando un archivo `.env` o similar) para facilitar la publicación y el despliegue en plataformas como Render u otros entornos de producción/staging.
+9.  **Evaluación de ORM Alternativos:** Investigar y evaluar la posibilidad de utilizar un ORM más moderno o diferente (como un equivalente a Prisma para Java) para mejorar la gestión y la interacción con la base de datos, en caso de que sea necesario.
+10. **Revisión y Aplicación de Mejoras de Calidad de Código:** Considerar e implementar las sugerencias de mejora de calidad de código identificadas en el análisis del proyecto, enfocándose en la refactorización, patrones de diseño y reducción de boilerplate.
+11. **Validación del Patrón Arquitectónico:** Confirmar y documentar si la Arquitectura Hexagonal (Ports and Adapters) actual es el patrón más adecuado y sostenible para el crecimiento futuro del proyecto, o si se deberían considerar ajustes.
