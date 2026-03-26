@@ -1,0 +1,29 @@
+# Docker Compose para desarrollo Java + PostgreSQL local
+# Nota: PostgreSQL NO se levanta con Docker, se usa el local instalado
+# Este compose es solo para la aplicación Spring Boot
+
+version: '3.8'
+
+services:  
+  # Servicio principal - Aplicación Spring Boot
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/startup_crm
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123456
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: []
+    profiles:
+      - app
+
+# Nota: PostgreSQL se ejecuta localmente en tu máquina, no en Docker
+# Asegúrate de tener:
+# 1. PostgreSQL instalado y corriendo en puerto 5432
+# 2. Base de datos 'startup_crm' creada
+# 3. Usuario 'postgres' con contraseña '123456'

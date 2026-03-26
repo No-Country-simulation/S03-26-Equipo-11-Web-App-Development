@@ -62,14 +62,12 @@ API REST desarrollada con Java y Spring Boot para gestión de datos y lógica de
 | Tecnología      | Versión | Propósito             |
 | --------------- | ------- | --------------------- |
 | Java            | 17      | Lenguaje (LTS)        |
-| Spring Boot     | 3.2.x   | Framework             |
+| Spring Boot     | 3.2.4   | Framework             |
 | Spring Security | -       | Autenticación JWT     |
 | Spring Data JPA | -       | ORM                   |
 | PostgreSQL      | -       | Base de datos         |
-| Flyway          | -       | Migraciones BD        |
 | Lombok          | -       | Reducción boilerplate |
-| OpenAPI/Swagger | -       | Documentación API     |
-| Neon (o local)  | -       | Base de datos remota  |
+| SpringDoc OpenAPI | 2.3.0   | Documentación API     |
 
 ---
 
@@ -79,9 +77,30 @@ API REST desarrollada con Java y Spring Boot para gestión de datos y lógica de
 
 Consulta `frontend/README.md` para más scripts y detalles.
 
-### Backend (próximamente)
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-Consulta `backend/README.md` para más detalles.
+### Backend
+
+Consulta `backend/README.md` para detalles.
+
+**Requisitos:**
+- Java 17+ instalado
+- PostgreSQL corriendo con la base de datos `startup_crm`
+
+**Ejecución:**
+
+```bash
+cd backend
+.\mvnw spring-boot:run
+```
+
+**Acceso:**
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **API**: http://localhost:8080/api/contacts
 
 ## 👥 Equipo de Desarrollo (Equipo 11)
 
