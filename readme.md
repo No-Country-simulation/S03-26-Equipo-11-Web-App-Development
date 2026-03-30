@@ -110,6 +110,6 @@ cd backend
 | **Ricardo Thalhuen Moraga Cortez** | Full Stack Developer | https://github.com/Thalhuen        |
 | **Daniel Lorenzo Ramos**           | Backend Developer    | https://github.com/LazaroTupo      |
 | **Rodrigo Fernández**              | Backend Developer    | https://github.com/rodri9891       |
-| **Favian Fernando Medina Gemio**   | Backend Developer    | https://github.com/fabinnerself    |
+| **Favian Fernando Medina Gemio**   | Backend Developer    | https://github.com/fabinnerself     |
 | **Mario Isaac Alberto Cortez**     | Backend Developer    | https://github.com/mariocortezBEST |
-| **Anghelo Flores**                 | Backend Developer    | https://github.com/evanghel1on     |
+| **Anghelo Flores**                 | Backend Developer    | https://github.com/evanghel1on      |
