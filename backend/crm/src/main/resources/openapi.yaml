@@ -1,0 +1,429 @@
+openapi: 3.0.3
+info:
+  title: CRM Backend API
+  description: |
+    API REST para el sistema CRM - Startup CRM
+    
+    ## Funcionalidades
+    - Gestión de contactos (CRUD completo)
+    - Búsqueda y filtrado de contactos
+    - Exportación a CSV
+    - Segmentación por estado (Lead, Contactado, Propuesta, Cliente, Inactivo)
+  version: 0.0.1
+  contact:
+    name: Equipo 11 - Startup CRM
+    url: https://github.com/fabinnerself
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+tags:
+  - name: Contactos
+    description: Gestión de contactos del CRM - Crear, leer, actualizar y eliminar contactos
+
+paths:
+  # 1. GET /api/contacts - Listar todos
+  /api/contacts:
+    get:
+      tags:
+        - Contactos
+      summary: Listar contactos
+      x-order: 1
+      description: |
+        Obtiene una lista de contactos con filtros opcionales.
+        
+        ## Filtros disponibles:
+        - `q`: Búsqueda por nombre o empresa
+        - `state`: Filtrar por estado (Lead, Contactado, Propuesta, Cliente, Inactivo)
+      operationId: getAllContacts
+      parameters:
+        - name: q
+          in: query
+          description: Término de búsqueda (nombre o empresa)
+          required: false
+          schema:
+            type: string
+          example: "Juan"
+        - name: state
+          in: query
+          description: Filtrar por estado
+          required: false
+          schema:
+            type: string
+            enum: [Lead, Contactado, Propuesta, Cliente, Inactivo]
+          example: "Lead"
+      responses:
+        '200':
+          description: Contactos encontrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContactResponse'
+        '400':
+          description: Parámetros inválidos
+        '500':
+          description: Error interno del servidor
+
+  # 2. GET /api/contacts/export - Exportar CSV
+  /api/contacts/export:
+    get:
+      tags:
+        - Contactos
+      summary: Exportar contactos
+      x-order: 2
+      description: |
+        Exporta la lista de contactos a formato CSV.
+        
+        ## Filtros disponibles:
+        - `q`: Búsqueda por nombre o empresa
+        - `state`: Filtrar por estado
+      operationId: exportContacts
+      parameters:
+        - name: q
+          in: query
+          description: Término de búsqueda (nombre o empresa)
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: Filtrar por estado
+          required: false
+          schema:
+            type: string
+            enum: [Lead, Contactado, Propuesta, Cliente, Inactivo]
+      responses:
+        '200':
+          description: Exportación exitosa
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Filtros inválidos
+        '500':
+          description: Error interno del servidor
+
+  # 3. POST /api/contacts - Crear
+  /api/contacts:
+    post:
+      tags:
+        - Contactos
+      summary: Crear contacto
+      x-order: 3
+      description: |
+        Crea un nuevo contacto en el CRM.
+        
+        ## Validaciones:
+        - El email debe ser único (no puede estar duplicado)
+        - El estado se asigna automáticamente como "Lead"
+      operationId: createContact
+      requestBody:
+        description: Datos del contacto a crear
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactRequest'
+            example:
+              name: "Juan Pérez"
+              email: "juan@example.com"
+              phone: "555123456"
+              phonePrefix: "+54"
+              enterprise: "Tech Corp"
+      responses:
+        '201':
+          description: Contacto creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+        '400':
+          description: Datos inválidos o email duplicado
+        '500':
+          description: Error interno del servidor
+
+  # 4. GET /api/contacts/{id} - Obtener por ID
+  /api/contacts/{id}:
+    get:
+      tags:
+        - Contactos
+      summary: Obtener contacto por ID
+      x-order: 4
+      description: Obtiene los detalles de un contacto específico utilizando su UUID.
+      operationId: getContactById
+      parameters:
+        - name: id
+          in: path
+          description: UUID del contacto
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Contacto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+        '404':
+          description: Contacto no encontrado
+        '500':
+          description: Error interno del servidor
+
+  # 5. PUT /api/contacts/{id} - Actualizar
+  /api/contacts/{id}:
+    put:
+      tags:
+        - Contactos
+      summary: Actualizar contacto
+      x-order: 5
+      description: |
+        Actualiza los datos de un contacto existente.
+        
+        ## Campos actualizables:
+        - name
+        - email (debe ser único)
+        - enterprise
+      operationId: updateContact
+      parameters:
+        - name: id
+          in: path
+          description: UUID del contacto
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        description: Nuevos datos del contacto
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequest'
+            example:
+              name: "Juan Carlos Pérez"
+              email: "juan.carlos@example.com"
+              enterprise: "Tech Corp SA"
+      responses:
+        '200':
+          description: Contacto actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+        '400':
+          description: Datos inválidos o email duplicado
+        '404':
+          description: Contacto no encontrado
+        '500':
+          description: Error interno del servidor
+
+  # 6. PATCH /api/contacts/{id}/state - Cambiar estado
+  /api/contacts/{id}/state:
+    patch:
+      tags:
+        - Contactos
+      summary: Cambiar estado
+      x-order: 6
+      description: |
+        Cambia el estado de un contacto en el funnel de ventas.
+        
+        ## Estados válidos:
+        - Lead
+        - Contactado
+        - Propuesta
+        - Cliente
+        - Inactivo
+      operationId: updateContactState
+      parameters:
+        - name: id
+          in: path
+          description: UUID del contacto
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        description: Nuevo estado del contacto
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactStateRequest'
+            example:
+              state: "Contactado"
+      responses:
+        '200':
+          description: Estado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+        '400':
+          description: Estado inválido
+        '404':
+          description: Contacto no encontrado
+        '500':
+          description: Error interno del servidor
+
+  # 7. DELETE /api/contacts/{id} - Eliminar
+  /api/contacts/{id}:
+    delete:
+      tags:
+        - Contactos
+      summary: Eliminar contacto
+      x-order: 7
+      description: |
+        Elimina lógicamente un contacto (soft delete).
+        
+        ## Nota:
+        El contacto no se elimina físicamente de la base de datos,
+        se marca con `deletedAt = true` para mantener el historial.
+      operationId: deleteContact
+      parameters:
+        - name: id
+          in: path
+          description: UUID del contacto
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '204':
+          description: Contacto eliminado exitosamente
+        '404':
+          description: Contacto no encontrado
+        '500':
+          description: Error interno del servidor
+
+components:
+  schemas:
+    ContactRequest:
+      type: object
+      description: Request para crear un nuevo contacto
+      required:
+        - name
+        - email
+        - phone
+        - phonePrefix
+      properties:
+        name:
+          type: string
+          description: Nombre completo del contacto
+          example: "Juan Pérez"
+        email:
+          type: string
+          format: email
+          description: Correo electrónico único
+          example: "juan@example.com"
+        phone:
+          type: string
+          description: Número de teléfono
+          example: "555123456"
+        phonePrefix:
+          type: string
+          description: Prefijo telefónico (código de país)
+          example: "+54"
+        enterprise:
+          type: string
+          description: Nombre de la empresa
+          example: "Tech Corp"
+
+    ContactResponse:
+      type: object
+      description: Respuesta con datos del contacto
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único del contacto
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          description: Nombre completo del contacto
+          example: "Juan Pérez"
+        email:
+          type: string
+          format: email
+          description: Correo electrónico
+          example: "juan@example.com"
+        phone:
+          type: string
+          description: Número de teléfono
+          example: "555123456"
+        phonePrefix:
+          type: string
+          description: Prefijo telefónico
+          example: "+54"
+        enterprise:
+          type: string
+          description: Empresa
+          example: "Tech Corp"
+        state:
+          type: string
+          description: Estado en el funnel
+          enum: [Lead, Contactado, Propuesta, Cliente, Inactivo]
+          example: "Lead"
+        lastContact:
+          type: string
+          format: date
+          description: Fecha del último contacto
+          example: "2026-03-25"
+
+    UpdateContactRequest:
+      type: object
+      description: Request para actualizar datos de un contacto
+      properties:
+        name:
+          type: string
+          description: Nombre completo del contacto
+          example: "Juan Carlos Pérez"
+        email:
+          type: string
+          format: email
+          description: Correo electrónico único
+          example: "juan.carlos@example.com"
+        enterprise:
+          type: string
+          description: Nombre de la empresa
+          example: "Tech Corp SA"
+
+    UpdateContactStateRequest:
+      type: object
+      description: Request para actualizar el estado de un contacto
+      required:
+        - state
+      properties:
+        state:
+          type: string
+          description: Nuevo estado del contacto en el funnel
+          enum: [Lead, Contactado, Propuesta, Cliente, Inactivo]
+          example: "Contactado"
+
+    Error:
+      type: object
+      description: Respuesta de error
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Fecha y hora del error
+        status:
+          type: integer
+          description: Código de estado HTTP
+        error:
+          type: string
+          description: Tipo de error
+        message:
+          type: string
+          description: Mensaje de error detallado

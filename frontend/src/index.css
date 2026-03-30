@@ -61,7 +61,7 @@
     --chart-4: 271 81% 56%;
     --chart-5: 0 72% 51%;
 
-    font-family: 'DM Sans', sans-serif;
+    font-family: "DM Sans", sans-serif;
   }
 
   .dark {
@@ -85,34 +85,68 @@
     --input: 220 20% 18%;
     --ring: 160 84% 45%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
   }
 }
 
 @layer components {
-  .sidebar-link {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 text-sm font-medium;
+  .form-label {
+    @apply mb-2 block text-[14px] font-semibold leading-[20px];
   }
+
+  .form-input {
+    @apply w-full rounded-[6px] border bg-white text-[14px] leading-[24px] transition-all focus:border-transparent focus:outline-none focus:ring-2 md:text-[16px];
+  }
+
+  .auth-card {
+    @apply w-full max-w-[448px] rounded-[8px] bg-white p-6 shadow-lg md:p-8;
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-foreground;
+  }
+
   .sidebar-link-active {
     @apply bg-sidebar-accent text-sidebar-primary;
   }
+
   .kpi-card {
-    @apply bg-card rounded-xl border p-5 shadow-sm hover:shadow-md transition-shadow;
+    @apply rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md;
   }
+
   .funnel-badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
+
   .chat-bubble-sent {
-    @apply bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 max-w-[75%] ml-auto;
+    @apply ml-auto max-w-[75%] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-primary-foreground;
   }
+
   .chat-bubble-received {
-    @apply bg-muted text-foreground rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[75%];
+    @apply max-w-[75%] rounded-2xl rounded-bl-md bg-muted px-4 py-2.5 text-foreground;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
   }
 }

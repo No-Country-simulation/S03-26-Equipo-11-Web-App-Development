@@ -1,0 +1,71 @@
+### ============================================
+### CONFIGURACIÓN - Cambiar URL base aquí
+### ============================================
+@baseUrl = http://localhost:8080
+@baseUrl = http://192.168.94.69:8080
+
+### ============================================
+### ENDPOINTS
+### ============================================
+
+### Obtener todos los contactos
+GET {{baseUrl}}/api/contacts
+
+### Obtener un contacto filtrado por nombre
+GET {{baseUrl}}/api/contacts?q=ana
+
+### Obtener un contacto filtrado estado
+GET {{baseUrl}}/api/contacts?state=Lead
+
+### Obtener un contacto filtrado estado y nombre
+GET {{baseUrl}}/api/contacts?state=Contactado&q=carlos
+
+### obtener contacto por id
+GET {{baseUrl}}/api/contacts/11111111-1111-1111-1111-111111111111
+
+
+### actualizar contacto
+PUT {{baseUrl}}/api/contacts/7aeb95a2-19e9-4f5a-b4a0-175af8df22fa
+Content-Type: application/json
+
+{
+    "name": "Tester user",
+    "email": "tester@example.com",
+    "phone": "5917234567",
+    "address": "123 Main St",
+    "state": "Lead"
+}   
+
+### cambiar estado 
+### Estados válidos: Lead, Contactado, Propuesta, Cliente, Inactivo
+PATCH {{baseUrl}}/api/contacts/11111111-1111-1111-1111-111111111111/state
+Content-Type: application/json
+
+{
+    "state": "Contactado"
+}
+
+### añadir contacto
+POST {{baseUrl}}/api/contacts
+Content-Type: application/json
+
+{
+    "name": "Juana Peraz",
+    "email": "juana@example.net",
+    "phone": "7234567",
+    "phonePrefix": "+591",
+    "enterprise": "Tech Corp"
+}
+
+### delete contact
+DELETE {{baseUrl}}/api/contacts/869c79c6-870b-4856-ab77-d6fb8b5b602e
+
+### export 
+GET {{baseUrl}}/api/contacts/export
+
+### swagger
+GET {{baseUrl}}/swagger-ui/index.html
+
+### ============================================
+### ENDPOINTS de nodejs
+### ============================================

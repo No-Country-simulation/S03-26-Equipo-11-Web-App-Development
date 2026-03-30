@@ -1,0 +1,67 @@
+### ============================================
+### CONFIGURACIÓN - Cambiar URL base aquí
+### ============================================
+@baseUrl = http://localhost:3001
+# @baseUrl = http://192.168.94.69:3000
+
+
+
+
+
+### Health check
+GET {{baseUrl}}/health
+
+### Enviar email (HTML + texto)
+POST {{baseUrl}}/email/send
+Content-Type: application/json
+
+{
+  "to": "favian.medina.gemio@gmail.com",
+  "subject": "Prueba HTML4",
+  "html": "<p>Hola desde CRM</p>",
+  "text": "Hola desde CRM",
+  "contactId": 1,
+  "templateId": "welcome-01",
+  "metadata": {
+    "campaign": "onboarding"
+  }
+}
+
+### Enviar email (solo texto)
+POST {{baseUrl}}/email/send
+Content-Type: application/json
+
+{
+  "to": "test@dominio.com",
+  "subject": "Prueba texto",
+  "text": "Hola desde CRM"
+}
+
+### Recibir emails (ultimos 10, incluye leidos)
+POST {{baseUrl}}/email/receive
+Content-Type: application/json
+
+{
+  "limit": 5,
+  "unreadOnly": false,
+  "mailbox": "INBOX"
+}
+
+### Recibir emails (solo no leidos)
+POST {{baseUrl}}/email/receive
+Content-Type: application/json
+
+{
+  "limit": 5,
+  "unreadOnly": true,
+  "mailbox": "INBOX"
+}
+
+### Error esperado (faltan campos)
+POST {{baseUrl}}/email/send
+Content-Type: application/json
+
+{
+  "to": "",
+  "subject": ""
+}
