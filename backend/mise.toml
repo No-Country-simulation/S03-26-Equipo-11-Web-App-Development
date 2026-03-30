@@ -1,0 +1,4 @@
+[tools]
+node = "latest"
+java = "17"
+maven = "latest"
