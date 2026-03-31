@@ -1,0 +1,93 @@
+### ============================================
+### CONFIGURACIÓN - Cambiar URL base aquí
+### ============================================
+@baseUrl = http://localhost:3001
+# @baseUrl = http://192.168.94.69:3000
+
+
+
+
+
+### Health check
+GET {{baseUrl}}/health
+
+### Enviar email (HTML + texto)
+POST {{baseUrl}}/email/send
+Content-Type: application/json
+
+{
+  "to": "favian.medina.gemio@gmail.com",
+  "subject": "Prueba HTML4",
+  "html": "<p>Hola desde CRM</p>",
+  "text": "Hola desde CRM",
+  "contactId": 1,
+  "templateId": "welcome-01",
+  "metadata": {
+    "campaign": "onboarding"
+  }
+}
+
+### Enviar email (solo texto)
+POST {{baseUrl}}/email/send
+Content-Type: application/json
+
+{
+  "to": "test@dominio.com",
+  "subject": "Prueba texto",
+  "text": "Hola desde CRM"
+}
+
+### Recibir emails (ultimos 10, incluye leidos)
+POST {{baseUrl}}/email/receive
+Content-Type: application/json
+
+{
+  "limit": 5,
+  "unreadOnly": false,
+  "mailbox": "INBOX"
+}
+
+### Recibir emails (solo no leidos)
+POST {{baseUrl}}/email/receive
+Content-Type: application/json
+
+{
+  "limit": 5,
+  "unreadOnly": true,
+  "mailbox": "INBOX"
+}
+
+### Error esperado (faltan campos)
+POST {{baseUrl}}/email/send
+Content-Type: application/json
+
+{
+  "to": "",
+  "subject": ""
+}
+
+### Recibir un email por messageId
+POST {{baseUrl}}/email/receiveOne
+Content-Type: application/json
+
+{
+  "messageId": "0101019d41814256-fda17d36-5633-4b97-a805-dc8ce89f918b-000000@us-west-2.amazonses.com",
+  "mailbox": "INBOX"
+}
+
+### Error: messageId no encontrado (404)
+POST {{baseUrl}}/email/receiveOne
+Content-Type: application/json
+
+{
+  "messageId": "<invalid-id-not-found@example.com>",
+  "mailbox": "INBOX"
+}
+
+### Error: messageId faltante (400)
+POST {{baseUrl}}/email/receiveOne
+Content-Type: application/json
+
+{
+  "mailbox": "INBOX"
+}
