@@ -19,3 +19,6 @@ codex -a never resume
 qwen -r
 # opencode yolo y resume
 opencode -c 
+
+# crear un string aleatorio de 32 caracteres
+ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"

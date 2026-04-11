@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { contacts, emailMessages, emailTemplates, type EmailTemplate } from "@/lib/data/mockData";
+import { contacts, emailMessages, emailTemplates, type EmailTemplate } from "@/lib/data-source";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

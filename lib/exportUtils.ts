@@ -1,4 +1,4 @@
-import { contacts, stageLabels, type Contact } from "@/lib/data/mockData";
+import { contacts, stageLabels, type Contact } from "@/lib/data-source";
 
 export function exportContactsCSV(filteredContacts: Contact[]) {
   const headers = ["Nombre", "Email", "Teléfono", "Empresa", "Estado", "Tags", "Último contacto"];

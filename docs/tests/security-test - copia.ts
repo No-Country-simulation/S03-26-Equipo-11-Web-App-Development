@@ -1,6 +1,6 @@
-Ôªø/**
- * Comando de ejecuci√≥n: npx ts-node tests/security-test.ts
- * verifica que el servidor est√© corriendo antes de ejecutar las pruebas: pnpm run dev
+/**
+ * Comando de ejecuciÛn: npx ts-node tests/security-test.ts
+ * verifica que el servidor estÈ corriendo antes de ejecutar las pruebas: pnpm run dev
  * asume que se registro cuenta con endpoint POST /api/auth/sign-in/email con email: test@example.com verificar la ejecucion antes de ejecutar las pruebas
  */
 
@@ -25,10 +25,10 @@ const testCases: TestCase[] = [
     endpoint: "/api/health",
     expectedStatus: 200,
     requiresAuth: false,
-    description: "Verificar que el servidor est√° activo",
+    description: "Verificar que el servidor est· activo",
   },
   {
-    name: "2 Login FAIL - Credenciales inv√°lidas",
+    name: "2 Login FAIL - Credenciales inv·lidas",
     method: "POST",
     endpoint: "/api/auth/sign-in/email",
     body: {
@@ -41,28 +41,28 @@ const testCases: TestCase[] = [
   },
 
   {
-    name: "3 Analytics - Sin sesi√≥n",
+    name: "3 Analytics - Sin sesiÛn",
     method: "GET",
     endpoint: "/api/v1/generalanalytics",
     expectedStatus: 401,
     requiresAuth: false,
-    description: "Acceso sin sesi√≥n debe retornar 401",
+    description: "Acceso sin sesiÛn debe retornar 401",
   },
   {
-    name: "4 Analytics 1 - Sin sesi√≥n",
+    name: "4 Analytics 1 - Sin sesiÛn",
     method: "GET",
     endpoint: "/api/v1/generalanalytics1",
     expectedStatus: 401,
     requiresAuth: false,
-    description: "Acceso sin sesi√≥n debe retornar 401",
+    description: "Acceso sin sesiÛn debe retornar 401",
   },
   {
-    name: "5 Analytics 2 - Sin sesi√≥n",
+    name: "5 Analytics 2 - Sin sesiÛn",
     method: "GET",
     endpoint: "/api/v1/generalanalytics2?conversions=22",
     expectedStatus: 401,
     requiresAuth: false,
-    description: "Acceso sin sesi√≥n debe retornar 401",
+    description: "Acceso sin sesiÛn debe retornar 401",
   },
 
   {
@@ -76,26 +76,26 @@ const testCases: TestCase[] = [
     },
     expectedStatus: 200,
     requiresAuth: false,
-    description: "Login con credenciales v√°lidas",
+    description: "Login con credenciales v·lidas",
   },
   {
-    name: "7 Analytics - CON sesi√≥n",
+    name: "7 Analytics - CON sesiÛn",
     method: "GET",
     endpoint: "/api/v1/generalanalytics",
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Acceso con sesi√≥n v√°lida debe retornar 200",
+    description: "Acceso con sesiÛn v·lida debe retornar 200",
   },
   {
-    name: "8 Analytics 1  General- CON sesi√≥n",
+    name: "8 Analytics 1  General- CON sesiÛn",
     method: "GET",
     endpoint: "/api/v1/generalanalytics1",
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Acceso con sesi√≥n v√°lida debe retornar 200",
+    description: "Acceso con sesiÛn v·lida debe retornar 200",
   },
   {
-    name: "9  Analytics 2 General- CON sesi√≥n",
+    name: "9  Analytics 2 General- CON sesiÛn",
     method: "GET",
     endpoint: "/api/v1/generalanalytics2?conversions=22",
     expectedStatus: 200,
@@ -108,85 +108,85 @@ const testCases: TestCase[] = [
     endpoint: "/api/v1/generalanalytics2",
     expectedStatus: 400,
     requiresAuth: true,
-    description: "Sin par√°metro conversions debe retornar 400",
+    description: "Sin par·metro conversions debe retornar 400",
   },
   {
-    name: "11 Alerts - CON sesi√≥n",
+    name: "11 Alerts - CON sesiÛn",
     method: "GET",
     endpoint: "/api/v1/alerts/alert",
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Alertas con sesi√≥n v√°lida",
+    description: "Alertas con sesiÛn v·lida",
   },
   {
-    name: "12 Alerts 1 - CON sesi√≥n",
+    name: "12 Alerts 1 - CON sesiÛn",
     method: "GET",
     endpoint: "/api/v1/alerts/alert1",
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Alertas 1 con sesi√≥n v√°lida",
+    description: "Alertas 1 con sesiÛn v·lida",
   },
   {
-    name: "13 Reports ROI - CON sesi√≥n",
+    name: "13 Reports ROI - CON sesiÛn",
     method: "GET",
     endpoint: "/api/v1/reports/roi",
     expectedStatus: 200,
     requiresAuth: true,
-    description: "ROI con sesi√≥n v√°lida",
+    description: "ROI con sesiÛn v·lida",
   },
   {
-    name: "14 Reports PAC - CON sesi√≥n",
+    name: "14 Reports PAC - CON sesiÛn",
     method: "GET",
     endpoint: "/api/v1/reports/pac",
     expectedStatus: 200,
     requiresAuth: true,
-    description: "PAC con sesi√≥n v√°lida",
+    description: "PAC con sesiÛn v·lida",
   },
   {
-    name: "15 Analitics - CON sesi√≥n",
+    name: "15 Analitics - CON sesiÛn",
     method: "GET",
     endpoint: "/api/v1/analytics/analytics",
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Analytics con sesi√≥n v√°lida",
+    description: "Analytics con sesiÛn v·lida",
   },
   {
-    name: "16 Get Session - SIN sesi√≥n",
+    name: "16 Get Session - SIN sesiÛn",
     method: "GET",
     endpoint: "/api/auth/get-session",
     expectedStatus: 200,
     requiresAuth: false,
-    description: "Get session sin autenticaci√≥n",
+    description: "Get session sin autenticaciÛn",
   },
   {
-    name: "17 Get Session - CON sesi√≥n",
+    name: "17 Get Session - CON sesiÛn",
     method: "GET",
     endpoint: "/api/auth/get-session",
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Get session con autenticaci√≥n",
+    description: "Get session con autenticaciÛn",
   },
   {
-    name: "18 Sign Out - CON sesi√≥n",
+    name: "18 Sign Out - CON sesiÛn",
     method: "POST",
     endpoint: "/api/auth/sign-out",
     body: {},
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Logout debe cerrar sesi√≥n",
+    description: "Logout debe cerrar sesiÛn",
   },
   {
-    name: "19 Analytics - DESPU√âS de logout",
+    name: "19 Analytics - DESPU…S de logout",
     method: "GET",
     endpoint: "/api/v1/generalanalytics",
     expectedStatus: 401,
     requiresAuth: false,
-    description: "Despu√©s logout debe requerir sesi√≥n nuevamente",
+    description: "DespuÈs logout debe requerir sesiÛn nuevamente",
   },
 ];
 
 async function runTests() {
-  console.log(" INICIANDO PRUEBAS DE SEGURIDAD Y AUTENTICACI√ìN\n");
+  console.log(" INICIANDO PRUEBAS DE SEGURIDAD Y AUTENTICACI”N\n");
   console.log("".repeat(80));
 
   let passed = 0;
@@ -195,7 +195,7 @@ async function runTests() {
 
   for (const test of testCases) {
     if (test.requiresAuth && !cookies) {
-      console.log(`\n  SALTANDO: "${test.name}" (sin sesi√≥n disponible)\n`);
+      console.log(`\n  SALTANDO: "${test.name}" (sin sesiÛn disponible)\n`);
       continue;
     }
 
@@ -248,14 +248,14 @@ async function runTests() {
       console.log(`${status} ${test.name}`);
       console.log(`   Endpoint: ${test.method} ${test.endpoint}`);
       console.log(`   Status: ${response.status} (esperado: ${test.expectedStatus})`);
-      console.log(`   Descripci√≥n: ${test.description}`);
+      console.log(`   DescripciÛn: ${test.description}`);
 
       if (!success) {
         const data = await response.json();
         console.log(`   Respuesta: ${JSON.stringify(data)}`);
-        console.log(`   Resultado: ‚ùå PRUEBA FALLIDA\n`);
+        console.log(`   Resultado: ? PRUEBA FALLIDA\n`);
       } else {
-        console.log(`   Resultado: ‚úÖ PRUEBA EXITOSA\n`);
+        console.log(`   Resultado: ? PRUEBA EXITOSA\n`);
       }
 
       console.log();
@@ -273,9 +273,9 @@ async function runTests() {
   console.log(` Total: ${testCases.length}\n`);
 
   if (failed === 0) {
-    console.log(" ¬°TODAS LAS PRUEBAS PASARON! Tu API est√° segura.\n");
+    console.log(" °TODAS LAS PRUEBAS PASARON! Tu API est· segura.\n");
   } else {
-    console.log(` ‚ùå ${failed} prueba(s) fallaron. Revisa el c√≥digo.\n`);
+    console.log(` ? ${failed} prueba(s) fallaron. Revisa el cÛdigo.\n`);
   }
 }
 
@@ -293,19 +293,19 @@ async function verifyServer(): Promise<boolean> {
 
 async function main() {
   console.clear();
-  console.log("üîç Verificando conexi√≥n con el servidor...\n");
+  console.log("?? Verificando conexiÛn con el servidor...\n");
 
   const serverRunning = await verifyServer();
 
   if (!serverRunning) {
     console.log("".repeat(80));
-    console.log("\n‚ùå ERROR: El servidor NO est√° corriendo\n");
+    console.log("\n? ERROR: El servidor NO est· corriendo\n");
     console.log("Por favor, inicia el servidor con: pnpm run dev\n");
     console.log("".repeat(80));
     process.exit(1);
   }
 
-  console.log("‚úÖ Servidor conectado correctamente.\n");
+  console.log("? Servidor conectado correctamente.\n");
   console.log("".repeat(80));
   await runTests();
 }

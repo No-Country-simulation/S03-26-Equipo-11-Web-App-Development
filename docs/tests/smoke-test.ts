@@ -1,6 +1,6 @@
-Ôªø/**
- * Comando de ejecuci√≥n: npx ts-node docs/tests/smoke-test.ts
- * verifica que el servidor est√© corriendo antes de ejecutar las pruebas: pnpm run dev
+/**
+ * Comando de ejecuciÛn: npx ts-node docs/tests/smoke-test.ts
+ * verifica que el servidor estÈ corriendo antes de ejecutar las pruebas: pnpm run dev
  * asume que se registro cuenta con endpoint POST /api/auth/sign-in/email con email: test@example.com verificar la ejecucion antes de ejecutar las pruebas
  */
 
@@ -32,10 +32,10 @@ const testCases: TestCase[] = [
     endpoint: "/api/health",
     expectedStatus: 200,
     requiresAuth: false,
-    description: "Verificar que el servidor est√° activo",
+    description: "Verificar que el servidor est· activo",
   },
   {
-    name: "2 Login FAIL - Credenciales inv√°lidas",
+    name: "2 Login FAIL - Credenciales inv·lidas",
     method: "POST",
     endpoint: "/api/auth/sign-in/email",
     body: {
@@ -48,12 +48,12 @@ const testCases: TestCase[] = [
   },
 
   {
-    name: "3 Analytics orders - Sin sesi√≥n",
+    name: "3 Analytics orders - Sin sesiÛn",
     method: "GET",
     endpoint: "/api/v1/analytics/orders?projectId=no-session-project",
     expectedStatus: 401,
     requiresAuth: false,
-    description: "Acceso sin sesi√≥n debe retornar 401",
+    description: "Acceso sin sesiÛn debe retornar 401",
   },
 
   {
@@ -67,7 +67,7 @@ const testCases: TestCase[] = [
     },
     expectedStatus: 200,
     requiresAuth: false,
-    description: "Login con credenciales v√°lidas",
+    description: "Login con credenciales v·lidas",
   },
   {
     name: "4.1 Get session",
@@ -75,38 +75,38 @@ const testCases: TestCase[] = [
     endpoint: "/api/auth/get-session",
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Obtiene userId actual de la sesi√≥n para pruebas protegidas",
+    description: "Obtiene userId actual de la sesiÛn para pruebas protegidas",
   },
 
   {
-    name: "5 Analytics orders - con sesi√≥n y projectId",
+    name: "5 Analytics orders - con sesiÛn y projectId",
     method: "GET",
     endpoint: `/api/v1/analytics/orders?projectId=${ORDERS_PROJECT_PLACEHOLDER}`,
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Debe retornar reporte de √≥rdenes y response.ok true",
+    description: "Debe retornar reporte de Ûrdenes y response.ok true",
   },
   {
-    name: "6 Analytics orders detail - con sesi√≥n y orderId",
+    name: "6 Analytics orders detail - con sesiÛn y orderId",
     method: "GET",
     endpoint: `/api/v1/analytics/orders_detail?orderId=${ORDERS_DETAIL_PLACEHOLDER}`,
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Debe retornar reporte de √≥rdenes detalle y response.ok true",
+    description: "Debe retornar reporte de Ûrdenes detalle y response.ok true",
   },
   {
-    name: "7 Sign Out - CON sesi√≥n",
+    name: "7 Sign Out - CON sesiÛn",
     method: "POST",
     endpoint: "/api/auth/sign-out",
     body: {},
     expectedStatus: 200,
     requiresAuth: true,
-    description: "Logout debe cerrar sesi√≥n",
+    description: "Logout debe cerrar sesiÛn",
   },
 ];
 
 async function runTests() {
-  console.log(" INICIANDO PRUEBAS DE SEGURIDAD Y AUTENTICACI√ìN\n");
+  console.log(" INICIANDO PRUEBAS DE SEGURIDAD Y AUTENTICACI”N\n");
   console.log("".repeat(80));
 
   let passed = 0;
@@ -117,7 +117,7 @@ async function runTests() {
 
   for (const test of testCases) {
     if (test.requiresAuth && !cookies) {
-      console.log(`\n  SALTANDO: "${test.name}" (sin sesi√≥n disponible)\n`);
+      console.log(`\n  SALTANDO: "${test.name}" (sin sesiÛn disponible)\n`);
       continue;
     }
 
@@ -203,14 +203,14 @@ async function runTests() {
       console.log(`${status} ${test.name}`);
       console.log(`   Endpoint: ${test.method} ${resolvedEndpoint}`);
       console.log(`   Status: ${response.status} (esperado: ${test.expectedStatus})`);
-      console.log(`   Descripci√≥n: ${test.description}`);
+      console.log(`   DescripciÛn: ${test.description}`);
 
       if (!success) {
         const data = await response.json();
         console.log(`   Respuesta: ${JSON.stringify(data)}`);
-        console.log(`   Resultado: ‚ùå PRUEBA FALLIDA\n`);
+        console.log(`   Resultado: ? PRUEBA FALLIDA\n`);
       } else {
-        console.log(`   Resultado: ‚úÖ PRUEBA EXITOSA\n`);
+        console.log(`   Resultado: ? PRUEBA EXITOSA\n`);
       }
 
       console.log();
@@ -228,9 +228,9 @@ async function runTests() {
   console.log(` Total: ${testCases.length}\n`);
 
   if (failed === 0) {
-    console.log(" ‚úÖ ¬°TODAS LAS PRUEBAS PASARON! Tu API est√° segura.\n");
+    console.log(" ? °TODAS LAS PRUEBAS PASARON! Tu API est· segura.\n");
   } else {
-    console.log(` ‚ùå ${failed} prueba(s) fallaron. Revisa el c√≥digo.\n`);
+    console.log(` ? ${failed} prueba(s) fallaron. Revisa el cÛdigo.\n`);
   }
 }
 
@@ -248,19 +248,19 @@ async function verifyServer(): Promise<boolean> {
 
 async function main() {
   console.clear();
-  console.log("üîç Verificando conexi√≥n con el servidor...\n");
+  console.log("?? Verificando conexiÛn con el servidor...\n");
 
   const serverRunning = await verifyServer();
 
   if (!serverRunning) {
     console.log("".repeat(80));
-    console.log("\n‚ùå ERROR: El servidor NO est√° corriendo\n");
+    console.log("\n? ERROR: El servidor NO est· corriendo\n");
     console.log("Por favor, inicia el servidor con: pnpm run dev\n");
     console.log("".repeat(80));
     process.exit(1);
   }
 
-  console.log("‚úÖ Servidor " + BASE_URL + " conectado correctamente.\n");
+  console.log("? Servidor " + BASE_URL + " conectado correctamente.\n");
   console.log("".repeat(80));
   await runTests();
 }

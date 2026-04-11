@@ -3,6 +3,15 @@
 
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
+// Helper para generar UUIDs compatible con Node.js y Edge Runtime
+const generateId = () => {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback para versiones antiguas de Node.js
+  return require("crypto").randomUUID();
+};
+
 // ============================================
 // BETTER AUTH TABLES
 // ============================================
@@ -66,7 +75,7 @@ export const verifications = sqliteTable(
 // USUARIOS
 // ============================================
 export const users = sqliteTable("users", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
   email: text("email").notNull().unique(),
   password: text("password"),
   name: text("name").notNull(),
@@ -82,7 +91,7 @@ export const users = sqliteTable("users", {
 // CONTACTOS (Leads/Clientes)
 // ============================================
 export const contacts = sqliteTable("contacts", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
@@ -103,7 +112,7 @@ export const contacts = sqliteTable("contacts", {
 // PLANTILLAS DE EMAIL
 // ============================================
 export const emailTemplates = sqliteTable("email_templates", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
   name: text("name").notNull(),
   subject: text("subject").notNull(),
   body: text("body").notNull(),
@@ -121,7 +130,7 @@ export const emailTemplates = sqliteTable("email_templates", {
 // RECORDATORIOS / TAREAS
 // ============================================
 export const reminders = sqliteTable("reminders", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
   contactId: text("contact_id").references(() => contacts.id),
   userId: text("user_id").references(() => users.id),
   title: text("title").notNull(),
@@ -143,7 +152,7 @@ export const reminders = sqliteTable("reminders", {
 // MENSAJES (Tabla unificada)
 // ============================================
 export const messages = sqliteTable("messages", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId()),
   contactId: text("contact_id").references(() => contacts.id),
   canal: text("canal", { enum: ["whatsapp", "email", "sms"] }).notNull().default("email"),
   direccion: text("direccion", { enum: ["entrante", "saliente"] }).notNull(),

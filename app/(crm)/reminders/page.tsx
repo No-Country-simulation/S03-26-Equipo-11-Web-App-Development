@@ -26,7 +26,7 @@ import {
   type ReminderPriority,
   type ReminderStatus,
   type NotificationChannel,
-} from "@/lib/data/mockData";
+} from "@/lib/data-source";
 
 const statusConfig: Record<ReminderStatus, { label: string; icon: typeof Clock; className: string }> = {
   pending: { label: "Pendiente", icon: Clock, className: "text-funnel-contacted" },
