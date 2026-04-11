@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  /* No experimental options yet to keep it stable */
+  transpilePackages: ["swagger-ui-react"]
 };
 
 export default nextConfig;

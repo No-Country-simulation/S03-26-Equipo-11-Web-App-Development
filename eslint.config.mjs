@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Tools and scripts (not part of main app)
     "tools/**",
+    "docs/**",
   ]),
 ]);
 

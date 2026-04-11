@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get("better-auth.session_token");

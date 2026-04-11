@@ -43,7 +43,7 @@ async function getSessionUser(request: NextRequest): Promise<{ id: string; role:
   }
 }
 
-export async function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   for (const publicPath of PUBLIC_PATHS) {

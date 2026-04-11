@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/email/receive-sync",
-      "schedule": "@every 3m"
+      "schedule": "0 0 * * *"
     }
   ]
 }

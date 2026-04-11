@@ -58,6 +58,20 @@ export interface WhatsAppMessagesResponse {
   pagination: PaginationMeta;
 }
 
+interface WahaMessageLike {
+  id?: { _serialized?: string; id?: string } | string;
+  key?: { id?: string };
+  body?: string;
+  content?: string;
+  message?: {
+    conversation?: string;
+    extendedTextMessage?: { text?: string };
+  };
+  fromMe?: boolean;
+  timestamp?: number;
+  ack?: number;
+}
+
 export async function sendWhatsAppMessage(payload: WhatsAppSendPayload): Promise<WhatsAppSendResult> {
   const apiUrl = process.env.WHATSAPP_API_URL;
   const apiKey = process.env.WHATSAPP_API_KEY;
@@ -69,7 +83,7 @@ export async function sendWhatsAppMessage(payload: WhatsAppSendPayload): Promise
 
   try {
     let phone = payload.phone || payload.to;
-    let contactId = payload.contactId;
+    const contactId = payload.contactId;
 
     if (!phone && contactId) {
       const contact = await db
@@ -186,11 +200,9 @@ export async function getWhatsAppContacts(
   page: number = 1,
   limit: number = 20,
   search?: string,
-  unreadOnly?: boolean
+  _unreadOnly?: boolean
 ): Promise<WhatsAppContactsResponse> {
   const offset = (page - 1) * limit;
-
-  const whereConditions = [eq(messages.canal, "whatsapp")];
 
   let contactsWithMessages: { contactId: string }[] = [];
 
@@ -420,14 +432,20 @@ export async function getWhatsAppMessages(
     const totalPages = Math.ceil(total / limit);
     const paginatedMessages = messagesArray.slice((page - 1) * limit, page * limit).reverse();
 
-    const formattedMessages: WhatsAppMessage[] = paginatedMessages.map((msg: any) => {
-      const msgId = msg.id?._serialized || msg.id?.id || msg.key?.id || `wa_${Math.random().toString(36).slice(2)}`;
+    const formattedMessages: WhatsAppMessage[] = paginatedMessages.map((msg: WahaMessageLike) => {
+      const structuredId =
+        typeof msg.id === "object" && msg.id !== null ? msg.id : undefined;
+      const msgId =
+        structuredId?._serialized ||
+        structuredId?.id ||
+        msg.key?.id ||
+        `wa_${Math.random().toString(36).slice(2)}`;
       return {
         id: msgId,
         contenido: msg.body || msg.content || msg.message?.conversation || msg.message?.extendedTextMessage?.text || "",
         direccion: msg.fromMe ? "saliente" : "entrante",
         fecha: msg.timestamp ? new Date(msg.timestamp * 1000).toISOString() : new Date().toISOString(),
-        leido: msg.ack >= 2,
+        leido: (msg.ack ?? 0) >= 2,
       };
     });
 

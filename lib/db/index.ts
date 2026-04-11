@@ -5,7 +5,7 @@ import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema";
 
-const localDatabaseUrl = process.env.DATABASE_URL || "file:D:/nc/002/nextjs_crm/tools/scripts/data/crm.db";
+const localDatabaseUrl = process.env.DATABASE_URL || "file:./data/crm.db";
 const tursoDatabaseUrl = process.env.TURSO_DATABASE_URL;
 const tursoAuthToken = process.env.TURSO_AUTH_TOKEN;
 

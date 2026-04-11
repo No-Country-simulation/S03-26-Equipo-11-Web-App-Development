@@ -28,7 +28,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
-    const { to, text, contactId, metadata } = bodyJson as Record<string, any>;
+    const {
+      to,
+      text,
+      contactId,
+      metadata,
+    } = bodyJson as Record<string, unknown>;
 
     if (!to || typeof to !== "string") {
       return NextResponse.json({ error: "Missing 'to' phone number" }, { status: 400 });
@@ -37,7 +42,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing 'text' content" }, { status: 400 });
     }
 
-    let finalContactId = contactId;
+    let finalContactId = typeof contactId === "string" ? contactId : undefined;
     if (!finalContactId) {
       const existing = await db
         .select()
@@ -54,7 +59,9 @@ export async function POST(request: Request) {
       to,
       text,
       contactId: finalContactId,
-      metadata
+      metadata: typeof metadata === "object" && metadata !== null
+        ? (metadata as Record<string, unknown>)
+        : undefined,
     });
 
     if (result.status === "failed") {

@@ -1,7 +1,6 @@
 // Schema de Base de Datos - Startup CRM
 // Usado por Drizzle ORM con SQLite/libSQL (Turso)
 
-import { randomUUID } from "crypto";
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
 // ============================================
@@ -67,7 +66,7 @@ export const verifications = sqliteTable(
 // USUARIOS
 // ============================================
 export const users = sqliteTable("users", {
-  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   email: text("email").notNull().unique(),
   password: text("password"),
   name: text("name").notNull(),
@@ -83,7 +82,7 @@ export const users = sqliteTable("users", {
 // CONTACTOS (Leads/Clientes)
 // ============================================
 export const contacts = sqliteTable("contacts", {
-  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
@@ -104,7 +103,7 @@ export const contacts = sqliteTable("contacts", {
 // PLANTILLAS DE EMAIL
 // ============================================
 export const emailTemplates = sqliteTable("email_templates", {
-  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   subject: text("subject").notNull(),
   body: text("body").notNull(),
@@ -122,7 +121,7 @@ export const emailTemplates = sqliteTable("email_templates", {
 // RECORDATORIOS / TAREAS
 // ============================================
 export const reminders = sqliteTable("reminders", {
-  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   contactId: text("contact_id").references(() => contacts.id),
   userId: text("user_id").references(() => users.id),
   title: text("title").notNull(),
@@ -144,7 +143,7 @@ export const reminders = sqliteTable("reminders", {
 // MENSAJES (Tabla unificada)
 // ============================================
 export const messages = sqliteTable("messages", {
-  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   contactId: text("contact_id").references(() => contacts.id),
   canal: text("canal", { enum: ["whatsapp", "email", "sms"] }).notNull().default("email"),
   direccion: text("direccion", { enum: ["entrante", "saliente"] }).notNull(),

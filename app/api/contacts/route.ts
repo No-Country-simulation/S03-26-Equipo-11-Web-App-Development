@@ -10,6 +10,10 @@ import { ContactCreateSchema, FunnelStageSchema, type FunnelStage } from "@/lib/
 
 export const dynamic = "force-dynamic";
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Unknown error";
+}
+
 function unauthorizedResponse() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
@@ -77,11 +81,11 @@ export async function POST(request: Request) {
         throw new Error("EMPTY_BODY");
       }
       bodyJson = JSON.parse(bodyText);
-    } catch (parseError: any) {
+    } catch (parseError: unknown) {
       console.error("POST /api/contacts JSON parse error:", parseError);
       return NextResponse.json({ 
         error: "Invalid JSON payload", 
-        details: parseError.message,
+        details: getErrorMessage(parseError),
         rawBodyReceived: bodyText || "EMPTY" 
       }, { status: 400 });
     }
