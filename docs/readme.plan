@@ -1,0 +1,189 @@
+================================================================================
+STARTUP CRM - PLAN DE TRABAJO HASTA DEMO (17 abril 2026)
+================================================================================
+
+ÚLTIMA ACTUALIZACIÓN: 2026-04-06 01:00
+
+================================================================================
+DÍAS DISPONIBLES: ~10 días (hasta jueves 16)
+================================================================================
+
+FECHA DEMO: Viernes 17 de abril
+
+================================================================================
+TAREAS PENDIENTES DEL README.LOG
+================================================================================
+
+### 🔴 CRÍTICO (debe hacerse para la demo)
+
+| # | Tarea | Prioridad | Estimación |
+|---|-------|-----------|------------|
+| 2 | Contactos CRUD backend | ALTA | 4-6 hrs |
+| 3 | WhatsApp - enviar/recibir mensajes | ALTA | 4-6 hrs |
+
+### 🟡 IMPORTANTE (ideal para demo)
+
+| # | Tarea | Prioridad | Estimacion |
+|---|-------|-----------|------------|
+| 8 | Botón contraer menú lateral | MEDIA | 30 min |
+| 9 | Buscador funcional (limpiar) | BAJA | 30 min |
+| 10 | Icono notificaciones | BAJA | 1 hr |
+| 11 | Logo + botón home | MEDIA | 1 hr |
+| 1 | Landing page - links footer + redes | ALTA | 1-2 hrs |
+| 4 | Dashboard - sync antes de cargar datos | MEDIA | 1-2 hrs |
+| 5 | Email - sync con botón actualizar | MEDIA | 1-2 hrs |
+| 6 | Script creación admin inicial | MEDIA | 1 hr |
+
+### 🟢 OPCIONAL (si hay tiempo)
+
+| # | Tarea | Estimación |
+|---|-------|------------|
+| 12 | Recordatorios análisis | 2 hrs |
+| 13 | Configuración análisis | 2 hrs |
+| 14 | Documentación ERD | 3 hrs |
+
+================================================================================
+AVANCE ACTUAL (06 abril 2026)
+================================================================================
+
+✅ COMPLETADO:
+- Autenticación completa (login, registro, sesión, logout)
+- Dashboard CRM con KPIs y gráficos
+- Landing Page funcional
+- Emails (frontend + backend SMTP/IMAP)
+- Contactos frontend
+- WhatsApp frontend
+- Recordatorios frontend
+- Configuración frontend
+
+🔴 PENDIENTE CRÍTICO:
+- Contactos CRUD backend
+- WhatsApp backend
+
+================================================================================
+OBSERVACIONES
+================================================================================
+
+1. WhatsApp API requiere configuración de Meta/Evolution API - verificar credenciales
+2. Contactos CRUD es crítico para mostrar funcionalidad real
+3. Autenticación ya implementada con endpoints funcionales
+
+================================================================================
+NOTAS DE SEGUIMIENTO
+================================================================================
+
+[ ] Lun 6: Contactos CRUD backend
+[ ] Mar 7: WhatsApp mensajes
+[ ] Jue 9: Dashboard sync + Email sync
+[ ] Vie 10: Script admin + Landing page footer
+[ ] Lun 13: UI refinamientos
+[ ] Mar 14: Preparar demo + video
+[ ] Mie 15: Práctica
+[ ] Jue 16: QA final
+[ ] Vie 17: DEMO
+
+================================================================================
+
+ÚLTIMA ACTUALIZACIÓN: 2026-04-06
+
+================================================================================
+DIAS DISPONIBLES: ~10 dias (hasta jueves 16)
+================================================================================
+
+FECHA DEMO: Viernes 17 de abril
+
+================================================================================
+TAREAS PENDIENTES DEL README.LOG
+================================================================================
+
+### 🔴 CRÍTICO (debe hacerse para la demo)
+
+| # | Tarea | Prioridad | Estimación |
+|---|-------|-----------|------------|
+| 2 | Contactos CRUD backend | ALTA | 4-6 hrs |
+| 3 | WhatsApp - enviar/recibir mensajes | ALTA | 4-6 hrs |
+| 7 | La Vaquería - form contacto emailjs | ALTA | 2-3 hrs |
+
+### 🟡 IMPORTANTE (ideal para demo)
+
+| # | Tarea | Prioridad | Estimacion |
+|---|-------|-----------|------------|
+| 8 | Botón contraer menú lateral | MEDIA | 30 min |
+| 9 | Buscador funcional (limpiar) | BAJA | 30 min |
+| 10 | Icono notificaciones | BAJA | 1 hr |
+| 11 | Logo + botón home | MEDIA | 1 hr |
+| 1 | Landing page - links footer + redes | ALTA | 1-2 hrs |
+| 4 | Dashboard - sync antes de cargar datos | MEDIA | 1-2 hrs |
+| 5 | Email - sync con botón actualizar | MEDIA | 1-2 hrs |
+| 6 | Script creación admin inicial | MEDIA | 1 hr |
+
+### 🟢 OPCIONAL (si hay tiempo)
+
+| # | Tarea | Estimación |
+|---|-------|------------|
+| 12 | Recordatorios análisis | 2 hrs |
+| 13 | Configuración análisis | 2 hrs |
+| 14 | Documentación ERD | 3 hrs |
+
+================================================================================
+RECOMENDACIONES
+================================================================================
+
+### ✅ SÍ hacer:
+1. Priorizar funcionalidades core: Contactos, WhatsApp
+2. Simplificar el scope: "Funciona lo mínimo viable"
+3. Data de prueba: Asegurar que haya datos en la DB para la demo
+4. Video demo: Prepararlo con anticipación fecha mierc/jueve 15/16 abril
+
+### ❌ NO hacer:
+1. No iniciar nuevos módulos - Evitar configurar análisis de Recordatorios/Configuración
+2. No sobre-engineering - No agregar features complejos como WebSocket real-time
+3. No documentar hasta después - La documentación puede esperar post-demo
+
+================================================================================
+PLAN SUGERIDO POR DÍA
+================================================================================
+
+| Día       | Focus                                                   |
+|-----------|---------------------------------------------------------|
+| Mar 7     | WhatsApp básico (enviar mensaje)                        |
+| Mie 8     | Sync email + Dashboard refresh                          |
+| Jue 9     | Script admin + La Vaquería form                         |
+| Vie 10    | Testing + Fix bugs                                      |
+| Sab 11    | Buffer / fix pendientes                                 |
+| Dom 12    | Descanso                                                |
+| Lun 13    | UI refinamientos (menú, search)                         |
+| Mar 14    | Preparar demo + video                                   |
+| Mie 15    | Práctica demo                                           |
+| Jue 16    | QA final                                                |
+| Vie 17    | 🎉 DEMO                                                |
+| Lun 6     | Landing page footer + Contactos CRUD  otros no criticos |
+| Lun 20    | documentacion mermaid er diagramas y otros              |
+
+
+================================================================================
+OBSERVACIONES
+================================================================================
+
+1. WhatsApp API requiere configuración de Meta/Evolution API - verificar credenciales
+2. Contactos CRUD es crítico para mostrar funcionalidad real
+3. La Vaquería es un proyecto separado que requiere funiconalidad de  form con emailjs (a implementar o ajustara acatual)
+
+
+================================================================================
+NOTAS DE SEGUIMIENTO
+================================================================================
+
+
+[ ] Lun 6: Contactos CRUD backend
+[ ] Mar 7: WhatsApp mensajes
+[ ] Jue 9: Dashboard sync + Email sync
+[ ] Vie 10: Script admin + La Vaquería
+[ ] Lun 13: UI refinamientos
+[ ] Lun 13: Landing page footer
+[ ] Mar 14: Preparar demo
+[ ] Mie 15: Práctica
+[ ] Jue 16: QA final
+[ ] Vie 17: DEMO
+
+================================================================================

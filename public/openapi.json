@@ -1,0 +1,1181 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "StartupCRM API",
+    "description": "API para gestión de CRM - Autenticación, Emails, Contactos",
+    "version": "1.0.0",
+    "contact": {
+      "name": "StartupCRM Support",
+      "email": "support@startupcrm.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/api/auth/signup": {
+      "post": {
+        "summary": "Registrar nuevo usuario",
+        "description": "Crea una nueva cuenta de usuario",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password", "name", "confirmPassword"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Email del usuario",
+                    "example": "admin@startupcrm.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Contraseña",
+                    "example": "StartupCRM123!"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Nombre del usuario",
+                    "example": "Administrador"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Confirmar contraseña",
+                    "example": "StartupCRM123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario creado exitosamente"
+          },
+          "400": {
+            "description": "Error de validación o usuario ya existe"
+          }
+        }
+      }
+    },
+    "/api/auth/signin": {
+      "post": {
+        "summary": "Iniciar sesión",
+        "description": "Autentica al usuario y crea una sesión",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Email del usuario",
+                    "example": "admin@startupcrm.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Contraseña",
+                    "example": "StartupCRM123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sesión creada exitosamente",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Cookie de sesión (better-auth.session_token)"
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales inválidas"
+          }
+        }
+      }
+    },
+    "/api/auth/signout": {
+      "post": {
+        "summary": "Cerrar sesión",
+        "description": "Cierra la sesión actual del usuario",
+        "tags": ["Auth"],
+        "responses": {
+          "200": {
+            "description": "Sesión cerrada exitosamente"
+          }
+        }
+      }
+    },
+    "/api/auth/get-session": {
+      "get": {
+        "summary": "Obtener sesión actual",
+        "description": "Retorna la información del usuario logueado",
+        "tags": ["Auth"],
+        "responses": {
+          "200": {
+            "description": "Sesión activa",
+            "content": {
+              "application/json": {
+                "example": {
+                  "user": {
+                    "id": "user-uuid",
+                    "email": "admin@startupcrm.com",
+                    "name": "Administrador",
+                    "role": "admin"
+                  },
+                  "session": {
+                    "expiresAt": "2026-04-12T18:00:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión activa"
+          }
+        }
+      }
+    },
+    "/api/email/send": {
+      "post": {
+        "summary": "Enviar email",
+        "description": "Envía un email usando configuración SMTP. **Requiere autenticación**",
+        "tags": ["Email"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["to", "subject"],
+                "properties": {
+                  "to": {
+                    "type": "string",
+                    "description": "Destinatario",
+                    "example": "example@gmail.com"
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "Asunto del email",
+                    "example": "Prueba HTML4"
+                  },
+                  "html": {
+                    "type": "string",
+                    "description": "Contenido HTML",
+                    "example": "<p>Hola desde CRM</p>"
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Contenido texto plano",
+                    "example": "Hola desde CRM"
+                  },
+                  "contactId": {
+                    "type": "string",
+                    "description": "ID de contacto"
+                  },
+                  "templateId": {
+                    "type": "string",
+                    "description": "ID de plantilla",
+                    "example": "welcome-01"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "description": "Metadatos adicionales",
+                    "example": {
+                      "campaign": "onboarding"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email enviado exitosamente",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "sent",
+                  "contactId": "uuid",
+                  "contactCreated": true,
+                  "messageId": "<123@example.com>",
+                  "message": "Email enviado correctamente"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en validación"
+          },
+          "401": {
+            "description": "No autorizado - requiere autenticación"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/api/email/receive": {
+      "get": {
+        "summary": "Recibir lista de emails",
+        "description": "Obtiene una lista de emails desde IMAP. **Requiere autenticación**",
+        "tags": ["Email"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "default": 20
+            },
+            "description": "Límite de emails"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "default": 0
+            },
+            "description": "Offset para paginación"
+          },
+          {
+            "name": "unreadOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Solo no leídos"
+          },
+          {
+            "name": "mailbox",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "INBOX"
+            },
+            "description": "Carpeta de email"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de emails",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "ok",
+                  "count": 2,
+                  "emails": [
+                    {
+                      "from": "sender@example.com",
+                      "to": "receiver@gmail.com",
+                      "subject": "Test",
+                      "seen": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/api/email/receiveOne": {
+      "post": {
+        "summary": "Recibir email por ID",
+        "description": "Obtiene los detalles de un email específico. **Requiere autenticación**",
+        "tags": ["Email"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["messageId"],
+                "properties": {
+                  "messageId": {
+                    "type": "string",
+                    "description": "ID del mensaje",
+                    "example": "<abc123@example.com>"
+                  },
+                  "mailbox": {
+                    "type": "string",
+                    "description": "Carpeta de email",
+                    "example": "INBOX"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Detalles del email",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "ok",
+                  "email": {
+                    "from": "sender@example.com",
+                    "to": "receiver@gmail.com",
+                    "subject": "Test",
+                    "text": "Contenido",
+                    "html": "<p>Contenido</p>",
+                    "seen": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Falta messageId"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "404": {
+            "description": "Email no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/api/email/receive-sync": {
+      "get": {
+        "summary": "Sync emails entrantes (El Cartero Programado)",
+        "description": "Sincroniza emails desde IMAP hacia la tabla messages. Procesa máximo 5 emails nuevos por ejecución (configurable via EMAIL_SYNC_BATCH_SIZE). Usa checkpoint por messageId para evitar duplicados. **Requiere autenticación**",
+        "tags": ["Email"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Sync completado",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "ok",
+                  "processed": 3,
+                  "lastProcessedMessageId": "abc123@email.com",
+                  "lastSyncAt": "2026-04-05T01:20:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/api/email/sync-status": {
+      "get": {
+        "summary": "Estado de sincronización",
+        "description": "Retorna el estado actual de la sincronización de emails. **Requiere autenticación**",
+        "tags": ["Email"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Estado de sync",
+            "content": {
+              "application/json": {
+                "example": {
+                  "lastProcessedMessageId": "abc123@email.com",
+                  "lastSyncAt": "2026-04-05T01:20:00Z",
+                  "totalEmailsEntrantes": 150,
+                  "recentEmails": []
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/api/contacts": {
+      "get": {
+        "summary": "Listar contactos",
+        "description": "Retorna lista paginada de contactos con filtros opcionales. **Requiere autenticación**",
+        "tags": ["Contacts"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "number", "default": 1 },
+            "description": "Número de página"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "number", "default": 20, "enum": [10, 20, 30, 50, 100] },
+            "description": "Registros por página"
+          },
+          {
+            "name": "stage",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["new", "contacted", "qualified", "proposal", "won", "lost"] },
+            "description": "Filtrar por etapa del funnel"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Buscar en nombre y email"
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Tags separados por coma"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de contactos",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "name": "Juan Pérez",
+                      "email": "juan@example.com",
+                      "phone": "+56912345678",
+                      "company": "Acme Corp",
+                      "stage": "new",
+                      "tags": ["vip"],
+                      "lastContact": "2026-04-06T10:00:00Z",
+                      "notes": null,
+                      "avatar": null,
+                      "assignedTo": null,
+                      "createdAt": "2026-04-06T10:00:00Z",
+                      "updatedAt": "2026-04-06T10:00:00Z"
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "limit": 20,
+                    "total": 50,
+                    "totalPages": 3
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autorizado" }
+        }
+      },
+      "post": {
+        "summary": "Crear contacto",
+        "description": "Crea un nuevo contacto. **Requiere autenticación**",
+        "tags": ["Contacts"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ContactCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contacto creado",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "uuid",
+                  "name": "Juan Pérez",
+                  "email": "juan@example.com",
+                  "phone": "+56912345678",
+                  "company": "Acme Corp",
+                  "stage": "new",
+                  "tags": ["vip"],
+                  "notes": null,
+                  "assignedTo": null,
+                  "lastContact": null,
+                  "avatar": null,
+                  "createdAt": "2026-04-06T10:00:00Z",
+                  "updatedAt": "2026-04-06T10:00:00Z"
+                }
+              }
+            }
+          },
+          "400": { "description": "Error de validación" },
+          "401": { "description": "No autorizado" }
+        }
+      }
+    },
+    "/api/contacts/{id}": {
+      "get": {
+        "summary": "Obtener contacto por ID",
+        "description": "Retorna un contacto específico. **Requiere autenticación**",
+        "tags": ["Contacts"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" },
+            "description": "ID del contacto"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Contacto encontrado" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Contacto no encontrado" }
+        }
+      },
+      "put": {
+        "summary": "Actualizar contacto",
+        "description": "Actualiza un contacto existente. **Requiere autenticación**",
+        "tags": ["Contacts"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ContactUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Contacto actualizado" },
+          "400": { "description": "Error de validación" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Contacto no encontrado" }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar contacto",
+        "description": "Elimina un contacto. **Requiere autenticación**",
+        "tags": ["Contacts"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Contacto eliminado" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Contacto no encontrado" }
+        }
+      }
+    },
+    "/api/contacts/stats": {
+      "get": {
+        "summary": "Estadísticas del funnel",
+        "description": "Retorna conteo de contactos por etapa del funnel. **Requiere autenticación**",
+        "tags": ["Contacts"],
+        "responses": {
+          "200": {
+            "description": "Estadísticas",
+            "content": {
+              "application/json": {
+                "example": {
+                  "total": 150,
+                  "byStage": {
+                    "new": 25,
+                    "contacted": 30,
+                    "qualified": 20,
+                    "proposal": 15,
+                    "won": 35,
+                    "lost": 25
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autorizado" }
+        }
+      }
+    },
+    "/api/whatsapp": {
+      "get": {
+        "summary": "Listar contactos WhatsApp",
+        "description": "Retorna lista de contactos con conversaciones de WhatsApp. **Requiere autenticación**",
+        "tags": ["WhatsApp"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "number", "default": 1 },
+            "description": "Número de página"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "number", "default": 20, "enum": [10, 20, 30, 50, 100] },
+            "description": "Registros por página"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Buscar por nombre o teléfono"
+          },
+          {
+            "name": "unreadOnly",
+            "in": "query",
+            "schema": { "type": "boolean", "default": false },
+            "description": "Solo no leídos"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de contactos WhatsApp",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "contactId": "uuid",
+                      "name": "Juan Perez",
+                      "phone": "+59176543210",
+                      "lastMessage": "Hola mundo",
+                      "unreadCount": 2,
+                      "lastMessageAt": "2026-04-07T10:30:00Z"
+                    }
+                  ],
+                  "pagination": { "page": 1, "limit": 20, "total": 50, "totalPages": 3 }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autorizado" }
+        }
+      },
+      "post": {
+        "summary": "Sincronizar mensajes WhatsApp",
+        "description": "Sincroniza mensajes entrantes desde WPPConnect. **Requiere autenticación**",
+        "tags": ["WhatsApp"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Sincronización completada",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "ok",
+                  "newMessages": 5,
+                  "contactsUpdated": 2
+                }
+              }
+            }
+          },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      }
+    },
+    "/api/whatsapp/{contactId}": {
+      "get": {
+        "summary": "Obtener mensajes de contacto",
+        "description": "Retorna mensajes de WhatsApp para un contacto específico. **Requiere autenticación**",
+        "tags": ["WhatsApp"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "contactId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" },
+            "description": "ID del contacto"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "number", "default": 1 },
+            "description": "Número de página"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "number", "default": 20 },
+            "description": "Registros por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de mensajes",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "contenido": "Hola, tienes información?",
+                      "direccion": "entrante",
+                      "fecha": "2026-04-07T10:30:00Z",
+                      "leido": false
+                    }
+                  ],
+                  "pagination": { "page": 1, "limit": 20, "total": 100, "totalPages": 5 }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Contacto no encontrado" }
+        }
+      }
+    },
+    "/api/whatsapp/send": {
+      "post": {
+        "summary": "Enviar mensaje WhatsApp",
+        "description": "Envía un mensaje de texto por WhatsApp. **Requiere autenticación**",
+        "tags": ["WhatsApp"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contactId": {
+                    "type": "string",
+                    "description": "ID del contacto (opcional si se usa to)",
+                    "example": "uuid-del-contacto"
+                  },
+                  "to": {
+                    "type": "string",
+                    "description": "Número de teléfono con código de país (opcional si se usa contactId)",
+                    "example": "+59176543210"
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Contenido del mensaje",
+                    "example": "Hola, te contactamos desde el CRM"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mensaje enviado",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "sent",
+                  "messageId": "wamid.abc123",
+                  "contactId": "uuid",
+                  "message": "Mensaje de WhatsApp enviado correctamente"
+                }
+              }
+            }
+          },
+          "400": { "description": "Error de validación" },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      }
+    },
+    "/api/dashboard": {
+      "get": {
+        "summary": "Obtener métricas del dashboard",
+        "description": "Retorna KPIs y datos de gráficos para el dashboard",
+        "tags": ["Dashboard"],
+        "responses": {
+          "200": {
+            "description": "Métricas del dashboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health check",
+        "description": "Verifica el estado del servidor (público)",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Servidor operativo",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "ok",
+                  "timestamp": "2026-04-03T12:00:00Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Better Auth session token (cookie: better-auth.session_token)"
+      }
+    },
+    "schemas": {
+      "SignUpRequest": {
+        "type": "object",
+        "required": ["email", "password", "name", "confirmPassword"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          },
+          "name": {
+            "type": "string"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "SignInRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "SessionResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "email": { "type": "string" },
+              "name": { "type": "string" },
+              "role": { "type": "string", "enum": ["admin", "agent", "user"] }
+            }
+          },
+          "session": {
+            "type": "object",
+            "properties": {
+              "expiresAt": { "type": "string" }
+            }
+          }
+        }
+      },
+      "SendEmailRequest": {
+        "type": "object",
+        "required": ["to", "subject"],
+        "properties": {
+          "to": { "type": "string" },
+          "subject": { "type": "string" },
+          "html": { "type": "string" },
+          "text": { "type": "string" },
+          "contactId": { "type": "string" },
+          "templateId": { "type": "string" },
+          "metadata": { "type": "object" }
+        }
+      },
+      "SendEmailResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["sent", "failed"]
+          },
+          "contactId": { "type": "string" },
+          "contactCreated": { "type": "boolean" },
+          "messageId": { "type": "string" },
+          "message": { "type": "string" },
+          "error": { "type": "string" }
+        }
+      },
+      "ReceiveEmailRequest": {
+        "type": "object",
+        "properties": {
+          "limit": { "type": "number" },
+          "offset": { "type": "number" },
+          "unreadOnly": { "type": "boolean" },
+          "mailbox": { "type": "string" }
+        }
+      },
+      "ReceiveEmailResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["ok", "failed"]
+          },
+          "count": { "type": "number" },
+          "emails": { "type": "array" },
+          "error": { "type": "string" }
+        }
+      },
+      "DashboardResponse": {
+        "type": "object",
+        "properties": {
+          "kpis": {
+            "type": "object",
+            "properties": {
+              "activeContacts": {
+                "type": "object",
+                "properties": {
+                  "value": { "type": "number" },
+                  "change": { "type": "number" },
+                  "trend": { "type": "string", "enum": ["up", "down", "neutral"] }
+                }
+              },
+              "whatsappSent": {
+                "type": "object",
+                "properties": {
+                  "value": { "type": "number" },
+                  "change": { "type": "number" },
+                  "trend": { "type": "string", "enum": ["up", "down", "neutral"] }
+                }
+              },
+              "emailsSent": {
+                "type": "object",
+                "properties": {
+                  "value": { "type": "number" },
+                  "change": { "type": "number" },
+                  "trend": { "type": "string", "enum": ["up", "down", "neutral"] }
+                }
+              },
+              "responseRate": {
+                "type": "object",
+                "properties": {
+                  "value": { "type": "number" },
+                  "change": { "type": "number" },
+                  "trend": { "type": "string", "enum": ["up", "down", "neutral"] }
+                }
+              }
+            }
+          },
+          "charts": {
+            "type": "object",
+            "properties": {
+              "funnel": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "stage": { "type": "string" },
+                    "count": { "type": "number" }
+                  }
+                }
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "canal": { "type": "string" },
+                    "count": { "type": "number" }
+                  }
+                }
+              },
+              "weeklyActivity": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": { "type": "string" },
+                    "dayName": { "type": "string" },
+                    "canal": { "type": "string" },
+                    "count": { "type": "number" }
+                  }
+                }
+              },
+              "conversionRate": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "month": { "type": "string" },
+                    "total": { "type": "number" },
+                    "won": { "type": "number" },
+                    "rate": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Contact": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "name": { "type": "string", "minLength": 2, "maxLength": 255 },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string", "pattern": "^\\+?[\\d\\s\\-]{7,20}$" },
+        "company": { "type": "string" },
+        "stage": { "type": "string", "enum": ["new", "contacted", "qualified", "proposal", "won", "lost"] },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "lastContact": { "type": "string", "format": "date-time" },
+        "notes": { "type": "string" },
+        "avatar": { "type": "string" },
+        "assignedTo": { "type": "string", "format": "uuid" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "ContactCreate": {
+      "type": "object",
+      "required": ["name", "email"],
+      "properties": {
+        "name": { "type": "string", "minLength": 2, "maxLength": 255, "example": "Juan Pérez" },
+        "email": { "type": "string", "format": "email", "example": "juan@example.com" },
+        "phone": { "type": "string", "pattern": "^\\+?[\\d\\s\\-]{7,20}$", "example": "+56912345678" },
+        "company": { "type": "string", "example": "Acme Corp" },
+        "stage": { "type": "string", "enum": ["new", "contacted", "qualified", "proposal", "won", "lost"], "default": "new" },
+        "tags": { "type": "array", "items": { "type": "string" }, "example": ["vip", "lead"] },
+        "notes": { "type": "string", "example": "Cliente potencial" },
+        "assignedTo": { "type": "string", "format": "uuid" }
+      }
+    },
+    "ContactUpdate": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 2, "maxLength": 255 },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string", "pattern": "^\\+?[\\d\\s\\-]{7,20}$" },
+        "company": { "type": "string" },
+        "stage": { "type": "string", "enum": ["new", "contacted", "qualified", "proposal", "won", "lost"] },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "string" },
+        "assignedTo": { "type": "string", "format": "uuid" }
+      }
+    },
+    "ContactsListResponse": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "array", "items": { "$ref": "#/components/schemas/Contact" } },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "page": { "type": "number" },
+            "limit": { "type": "number" },
+            "total": { "type": "number" },
+            "totalPages": { "type": "number" }
+          }
+        }
+      }
+    },
+    "ContactsStatsResponse": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "number" },
+        "byStage": {
+          "type": "object",
+          "properties": {
+            "new": { "type": "number" },
+            "contacted": { "type": "number" },
+            "qualified": { "type": "number" },
+            "proposal": { "type": "number" },
+            "won": { "type": "number" },
+            "lost": { "type": "number" }
+          }
+        }
+      }
+    },
+    "ApiError": {
+      "type": "object",
+      "properties": {
+        "error": { "type": "string" },
+        "details": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Autenticación - Login, Register, Logout, Session"
+    },
+    {
+      "name": "Email",
+      "description": "Operaciones de email (requieren autenticación)"
+    },
+    {
+      "name": "Contacts",
+      "description": "Gestión de contactos - CRUD, filtros, paginación y estadísticas del funnel"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Métricas del dashboard - KPIs y gráficos"
+    },
+    {
+      "name": "WhatsApp",
+      "description": "Operaciones de WhatsApp - Contactos, mensajes y envío (requieren autenticación)"
+    },
+    {
+      "name": "Health",
+      "description": "Monitoreo del sistema"
+    }
+  ]
+}

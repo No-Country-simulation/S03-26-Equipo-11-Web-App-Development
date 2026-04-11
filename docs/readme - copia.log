@@ -1,0 +1,136 @@
+================================================================================
+STARTUP CRM - ESTADO DEL PROYECTO
+================================================================================
+
+ÚLTIMA ACTUALIZACIÓN: 2026-04-06 01:00
+
+================================================================================
+MÓDULOS COMPLETADOS 
+================================================================================
+
+[✓] 1. AUTENTICACIÓN (Better Auth)
+    - Login (frontend + backend)
+    - Registro (frontend + backend)
+    - Sesión (validación en layout CRM)
+    - Logout (botón en sidebar)
+    - Configuración: better-auth + drizzle-adapter + bcrypt
+    - Cookie: better-auth.session_token
+    Endpoints: /api/auth/*
+
+[✓] 2. DASHBOARD CRM
+    - KPIs: Contactos activos, Mensajes WhatsApp, Emails enviados, Tasa de respuesta
+    - Gráficos: Embudo ventas, Canales comunicación, Actividad semanal, Tasa conversión
+    - Fetch a /api/dashboard (datos reales desde DB)
+    - Loading spinner + error fallback
+    x pendiente 
+      - boton actualizar (ep email/sync-status debe actualizar antes de ejecutar ep dashboard)
+      - ep dashboard debe como ultimo paso ejecutar ep email/sync-status (alg cartero)
+      - diseño colores mejorar (shadcn)
+      - logo + boton home -> lleva a landing page (arrinconar boton contraer menu lateral)
+      - boton de contraer menu lateral funcional
+      - buscador que haga algo (1 vez hay texto que muestre x para borrar o btn limpiar)
+      - icono campana notificaciones que funcione cuando email/whatsapp tenga pendiente
+      - mail detalle implementar scroll bar
+
+[✓] 3. LANDING PAGE
+    - Frontend funcional
+    x Pendiente: 
+      - Links footer (privacidad, términos, contacto, redes: X, LinkedIn, Facebook, GitHub)
+
+[✓] 4. EMAILS (Frontend + Backend)
+    - Frontend: funcional (bandeja entrada, compose, vista detalles)
+    - Backend:
+      - POST /api/email/send (SMTP)
+      - GET /api/email/receive (IMAP)
+      - POST /api/email/receiveOne (email específico)
+      - GET /api/email/sync-status (estado sincronización)
+      - GET /api/email/receive-sync (sincronizar emails)
+    x Pendiente: botón actualizar con ep mail/sync
+
+[~] 5. CONTACTOS
+    - Frontend: funcional (tabla, filtros, agregar/edit modal)
+    - Backend: x Pendiente CRUD completo
+
+[~] 6. WHATSAPP
+    - Frontend: funcional (interfaz estilo WhatsApp)
+    - Backend: x Pendiente CRUD + enviar/recibir/recibir1 mensajes
+    - Investigación: Evolution API (send-media) https://doc.evolution-api.com/v2/api-reference/message-controller/send-media
+
+[~] 7. RECORDATORIOS
+    - Frontend: funcional
+    x Pendiente: Análisis y decisión de implementación
+
+[~] 8. CONFIGURACIÓN
+    - Frontend: funcional (básico)
+    x Pendiente: Análisis de funciones
+
+[~] 9.  despliegue
+    - investigar deployara a vercel rabajar en ello 
+    
+[~] 10.  documentacion
+    - mermaid:
+      * er de bd 
+      * digrama 0 y de contexto
+      * otros iso 
+
+
+
+================================================================================
+ENDPOINTS IMPLEMENTADOS
+================================================================================
+
+AUTH:
+  POST /api/auth/signin          - Iniciar sesión
+  POST /api/auth/signup          - Registrar usuario
+  POST /api/auth/signout         - Cerrar sesión
+  GET  /api/auth/get-session     - Obtener sesión actual
+
+EMAIL:
+  POST /api/email/send           - Enviar email (SMTP)
+  GET  /api/email/receive        - Recibir emails (IMAP)
+  POST /api/email/receiveOne    - Recibir email específico
+  GET  /api/email/sync-status   - Estado de sincronización
+  GET  /api/email/receive-sync  - Sincronizar emails
+
+DASHBOARD:
+  GET /api/dashboard             - Métricas KPIs y gráficos
+
+HEALTH:
+  GET /api/health               - Health check
+
+documentacion
+================================================================================
+la vaqueri - ESTADO DEL PROYECTO
+================================================================================
+landing estado funcional
+x pendiente: 
+  - mejorar diseño grafico
+  - emailjs o equivalente de manera que cuando se envie email lelge a bandeja de startupcrm (fabbinnerself)  y al correo del enviante interesado
+  
+
+================================================================================
+PRÓXIMOS PASOS (prioridad para Demo 17 abril 2026)
+================================================================================
+
+1. 🔴 Contactos CRUD backend
+2. 🔴 WhatsApp backend (enviar/recibirAll/recibir1 mensajes)
+3. 🟡 Emails/Dashboard con boton actualizar c/ sync automático
+4. 🟡 Landing page - completar links footer rr ss 
+5. 🟡 Script creación admin inicial
+6. 🟢 Recordatorios - análisis
+7. 🟢 Configuración - análisis
+
+================================================================================
+
+
+ > [!NOTE]
+> Aqui tienes una nota especial
+
+> [!TIP]
+> Tip cobsejo
+
+> [!IMPORTANT]
+> Aqui tienes un consejo
+
+> [!WARNING]
+> Aqui tienes una adevertencia

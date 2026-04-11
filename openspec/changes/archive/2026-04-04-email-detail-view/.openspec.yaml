@@ -1,0 +1,11 @@
+name: email-detail-view
+description: Obtener y mostrar el cuerpo del email al hacer click en email recibido usando endpoint receiveOne
+status: completed
+created: 2026-04-04
+artifacts:
+  - id: proposal
+    status: done
+  - id: design
+    status: done
+  - id: tasks
+    status: done

@@ -1,0 +1,337 @@
+### ============================================
+### CONFIGURACIÓN - Cambiar URL base aquí
+### ============================================
+@baseUrl = http://localhost:3000/api/
+@contact_id= eceb8740-10b1-452e-bd17-e5076b1b4e20
+
+### ============================================
+### AUTH - Iniciar sesión
+### ============================================
+
+### Login (obtener sesión)
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+Origin: http://localhost:3000
+
+{
+  "email": "favian.medina.gemio@gmail.com",
+  "password": "1"
+}
+
+
+### Registrar nuevo usuario
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+Origin: http://localhost:3000
+
+{
+  "email": "email@example.com",
+  "password": "1",
+  "name": "faby admin"
+}
+
+### Registrar nuevo usuario (endpoint Better Auth real)
+POST {{baseUrl}}auth/sign-up/email
+Content-Type: application/json
+Origin: http://localhost:3000
+
+{
+  "email": "email@example.com",
+  "password": "1",
+  "name": "faby admin"
+}
+
+### Cerrar sesión
+POST {{baseUrl}}/auth/signout
+Content-Type: application/json
+Origin: http://localhost:3000
+
+### Obtener sesión actual
+GET {{baseUrl}}/auth/get-session
+
+
+
+### ============================================
+### HEALTH CHECK (público - sin auth)
+### ============================================
+GET {{baseUrl}}/health
+
+
+
+### ============================================
+### EMAIL - Endpoints protegidos (requieren auth)
+### ============================================
+
+### Enviar email (HTML + texto)
+POST {{baseUrl}}/email/send
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "to": "favian.medina.gemio@gmail.com",
+  "subject": "Prueba HTML4   mess db",
+  "html": "<p>Hola desde CRM</p>",
+  "text": "Hola desde Startup CRM",
+  "contactId": 1,
+  "templateId": "welcome-01",
+  "metadata": {
+    "campaign": "onboarding"
+  }
+}
+
+### Enviar email (solo texto)
+POST {{baseUrl}}/email/send
+Content-Type: application/json
+
+{
+  "to": "test@dominio.com",
+  "subject": "Prueba texto",
+  "text": "Hola desde CRM"
+}
+
+### Recibir emails (ultimos 10, incluye leidos)
+GET {{baseUrl}}/email/receive?limit=5&offset=0
+
+### Recibir emails (solo no leidos)
+GET {{baseUrl}}/email/receive?limit=5&unreadOnly=true
+
+### Sync emails entrantes (El Cartero Programado)
+GET {{baseUrl}}/email/receive-sync
+
+### Error esperado (faltan campos)
+POST {{baseUrl}}/email/send
+Content-Type: application/json
+
+{
+  "to": "",
+  "subject": ""
+}
+
+### Error esperado (sin auth - 401)
+GET {{baseUrl}}/email/receive
+
+### Recibir un email por messageId
+POST {{baseUrl}}/email/receiveOne
+Content-Type: application/json
+
+{
+  "messageId": "a4911c58b12194450ead41b497b5bbc1@ratatype.com",
+  "mailbox": "INBOX"
+}
+
+### Error: messageId no encontrado (404)
+POST {{baseUrl}}/email/receiveOne
+Content-Type: application/json
+
+{
+  "messageId": "<invalid-id-not-found@example.com>",
+  "mailbox": "INBOX"
+}
+
+### Error: messageId faltante (400)
+POST {{baseUrl}}/email/receiveOne
+Content-Type: application/json
+
+{
+  "mailbox": "INBOX"
+}
+
+### Estado de sincronización
+GET {{baseUrl}}/email/sync-status
+
+
+
+### ============================================
+### SWAGGER UI
+### ============================================
+GET http://localhost:3000/api-docs
+
+
+
+### ============================================
+### DASHBOARD - Métricas
+### ============================================
+
+### Obtener todas las métricas del dashboard
+GET {{baseUrl}}/dashboard
+
+
+
+### ============================================
+### CONTACTS - CRUD (requieren auth)
+### ============================================
+
+### 1 Listar contactos (paginación por defecto 20)
+GET {{baseUrl}}/contacts
+x-user-id: test-user-id
+
+### 2 Listar contactos con límite específico (10, 20, 30, 50, 100)
+GET {{baseUrl}}/contacts?page=1&limit=10
+x-user-id: test-user-id
+
+### 3 paginacion
+GET {{baseUrl}}/contacts?page=1&limit=20
+x-user-id: test-user-id
+
+### 4 paginacion 30
+GET {{baseUrl}}/contacts?page=1&limit=30
+x-user-id: test-user-id
+
+### 5 Filtrar por stage (new, contacted, qualified, proposal, won, lost)
+GET {{baseUrl}}/contacts?stage=new
+x-user-id: test-user-id
+
+### 6 filtro stage
+GET {{baseUrl}}/contacts?stage=contacted
+x-user-id: test-user-id
+
+### 7 filtro won
+GET {{baseUrl}}/contacts?stage=won
+x-user-id: test-user-id
+
+### 8 Buscar por nombre o email
+GET {{baseUrl}}/contacts?search=Juan
+x-user-id: test-user-id
+
+### 9 filtro search
+GET {{baseUrl}}/contacts?search=gmail
+x-user-id: test-user-id
+
+### 10 Filtrar por tags (comma-separated)
+GET {{baseUrl}}/contacts?tags=vip
+x-user-id: test-user-id
+
+### 11 test
+GET {{baseUrl}}/contacts?tags=vip,lead
+x-user-id: test-user-id
+
+### 12 Filtros combinados
+GET {{baseUrl}}/contacts?stage=new&search=Juan&limit=20
+x-user-id: test-user-id
+
+### 13 Crear contacto (válido)
+POST {{baseUrl}}/contacts
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "name": "Juan Pérez",
+  "email": "juan.perez@example.com",
+  "phone": "+56912345678",
+  "company": "Acme Corp",
+  "stage": "new",
+  "tags": ["vip", "lead"],
+  "notes": "Cliente potencial"
+}
+
+### 14 Crear contacto sin campos opcionales
+POST {{baseUrl}}/contacts
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "name": "María García",
+  "email": "maria@example.com"
+}
+
+### 15 Error: name < 2 caracteres (400)
+POST {{baseUrl}}/contacts
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "name": "J",
+  "email": "juan@example.com"
+}
+
+### 16 Error: email inválido (400)
+POST {{baseUrl}}/contacts
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "name": "Juan",
+  "email": "no-es-un-email"
+}
+
+### 17 Error: phone < 7 chars (400)
+POST {{baseUrl}}/contacts
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "name": "Juan",
+  "email": "juan@example.com",
+  "phone": "123"
+}
+
+### 18 Error: phone con letras (400)
+POST {{baseUrl}}/contacts
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "name": "Juan",
+  "email": "juan@example.com",
+  "phone": "abcdefgh"
+}
+
+### 19 Error: stage inválido (400)
+POST {{baseUrl}}/contacts
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "name": "Juan",
+  "email": "juan@example.com",
+  "stage": "invalid-stage"
+}
+
+### 20 Error: sin autenticación (401)
+GET {{baseUrl}}/contacts
+
+### 21 Obtener contacto por ID (usar ID de un contacto existente)
+### Reemplazar {{contact_id}} con un ID real
+GET {{baseUrl}}/contacts/{{contact_id}}
+x-user-id: test-user-id
+
+### 22 Error: contacto no encontrado (404)
+GET {{baseUrl}}/contacts/00000000-0000-0000-0000-000000000000
+x-user-id: test-user-id
+
+### 23 Actualizar contacto
+### Reemplazar {{contact_id}} con un ID real
+PUT {{baseUrl}}/contacts/{{contact_id}}
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "stage": "contacted",
+  "notes": "Primera llamada realizada"
+}
+
+### 24 Actualizar varios campos
+PUT {{baseUrl}}/contacts/{{contact_id}}
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "name": "Juana adiccion",
+  "phone": "+56987654321",
+  "stage": "qualified",
+  "tags": ["vip", "premium"]
+}
+
+@contact_id =c656fb40-445f-4b2e-8984-50fd506a5b2c
+### 25 Eliminar contacto (usar con precaución)
+### Reemplazar {{contact_id}} con un ID real
+DELETE {{baseUrl}}/contacts/{{contact_id}}
+x-user-id: test-user-id
+
+### 26 Error: eliminar contacto inexistente (404)
+DELETE {{baseUrl}}/contacts/00000000-0000-0000-0000-000000000000
+x-user-id: test-user-id
+
+### 27 Estadísticas del funnel de ventas
+GET {{baseUrl}}/contacts/stats
+x-user-id: test-user-id

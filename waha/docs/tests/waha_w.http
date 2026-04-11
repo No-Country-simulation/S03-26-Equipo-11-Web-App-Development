@@ -1,0 +1,48 @@
+# WAHA API Tests - WhatsApp HTTP API
+# Documentación: https://waha.devlike.pro/docs/how-to/sessions/
+
+@apiUrl = http://localhost:4000
+@apiKey = 0148d3609e824423acf609c15f2b42b8
+@session = default
+
+
+### 4. Iniciar sesión (si ya fue creada pero está detenida)
+POST {{apiUrl}}/api/sessions/{{session}}/start
+x-api-key: {{apiKey}}
+
+### 6. Reiniciar sesión
+POST {{apiUrl}}/api/sessions/{{session}}/restart
+x-apiKey: {{apiKey}}
+
+### 1. Listar todas las sesiones
+GET {{apiUrl}}/api/sessions
+x-api-key: {{apiKey}}
+
+### 3. Obtener estado de una sesión específica
+GET {{apiUrl}}/api/sessions/{{session}}
+x-api-key: {{apiKey}}
+
+### 10. Obtener QR en formato binario (imagen)
+GET {{apiUrl}}/api/{{session}}/auth/qr
+x-api-key: {{apiKey}}
+Accept: image/png
+
+
+### 13. Enviar mensaje de texto
+POST {{apiUrl}}/api/sendText
+x-api-key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "session": "{{session}}",
+  "chatId": "59167023053@c.us",
+  "text": "👋Hola desde WAHA! 👋"
+}
+
+
+
+### 18. Obtener resumen de chats (más ligero)
+GET {{apiUrl}}/api/{{session}}/chats/overview?limit=20
+x-api-key: {{apiKey}}
+
+ 

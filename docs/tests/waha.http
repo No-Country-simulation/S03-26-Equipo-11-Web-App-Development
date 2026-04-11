@@ -1,0 +1,186 @@
+# WAHA API Tests - WhatsApp HTTP API
+# Documentación: https://waha.devlike.pro/docs/how-to/sessions/
+
+@apiUrl = http://localhost:3000
+@apiKey = 0148d3609e824423acf609c15f2b42b8
+@session = default
+
+# ============================================
+# SESIONES
+# ============================================
+
+### 1. Listar todas las sesiones
+GET {{apiUrl}}/api/sessions
+x-api-key: {{apiKey}}
+
+### 2. Crear nueva sesión (sin iniciar)
+# Response: { "name": "default", "status": "STARTING", ... }
+POST {{apiUrl}}/api/sessions
+x-api-key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "name": "{{session}}",
+  "start": true
+}
+
+### 3. Obtener estado de una sesión específica
+GET {{apiUrl}}/api/sessions/{{session}}
+x-api-key: {{apiKey}}
+
+### 4. Iniciar sesión (si ya fue creada pero está detenida)
+POST {{apiUrl}}/api/sessions/{{session}}/start
+x-api-key: {{apiKey}}
+
+### 5. Detener sesión
+POST {{apiUrl}}/api/sessions/{{session}}/stop
+x-api-key: {{apiKey}}
+
+### 6. Reiniciar sesión
+POST {{apiUrl}}/api/sessions/{{session}}/restart
+x-apiKey: {{apiKey}}
+
+### 7. Cerrar sesión (logout de WhatsApp)
+POST {{apiUrl}}/api/sessions/{{session}}/logout
+x-api-key: {{apiKey}}
+
+### 8. Eliminar sesión
+DELETE {{apiUrl}}/api/sessions/{{session}}
+x-api-key: {{apiKey}}
+
+# ============================================
+# AUTENTICACIÓN - QR Code
+# ============================================
+
+### 9. Obtener QR Code (GET - para vincular WhatsApp)
+# Response: { "mimetype": "image/png", "data": "base64..." }
+GET {{apiUrl}}/api/{{session}}/auth/qr
+x-api-key: {{apiKey}}
+Accept: application/json
+
+### 10. Obtener QR en formato binario (imagen)
+GET {{apiUrl}}/api/{{session}}/auth/qr
+x-api-key: {{apiKey}}
+Accept: image/png
+
+### 11. Obtener código de emparejamiento (Pairing Code)
+# Útil para vincular sin escanear QR
+POST {{apiUrl}}/api/{{session}}/auth/request-code
+x-api-key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "phone": "59167023053"
+}
+
+### 12. Verificar cuenta vinculada (Get Me)
+GET {{apiUrl}}/api/sessions/{{session}}/me
+x-api-key: {{apiKey}}
+
+# ============================================
+# ENVÍO DE MENSAJES
+# ============================================
+
+### 13. Enviar mensaje de texto
+POST {{apiUrl}}/api/sendText
+x-api-key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "session": "{{session}}",
+  "phone": "59167023053",
+  "text": "Hola desde WAHA! 👋"
+}
+
+### 14. Enviar mensaje con línea nueva
+POST {{apiUrl}}/api/sendText
+x-api-key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "session": "{{session}}",
+  "phone": "59167023053",
+  "text": "Línea 1\nLínea 2\nLínea 3"
+}
+
+### 15. Enviar mensaje con markdown básico
+POST {{apiUrl}}/api/sendText
+x-api-key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "session": "{{session}}",
+  "phone": "59167023053",
+  "text": "*Negrita* _cursiva_ ~tachado~"
+}
+
+### 16. Enviar mensaje a múltiples destinatarios
+POST {{apiUrl}}/api/sendText
+x-api-key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "session": "{{session}}",
+  "phone": "59167023053",
+  "text": "Mensaje broadcast",
+  "delay": 1000
+}
+
+# ============================================
+# RECEPCIÓN DE MENSAJES
+# ============================================
+
+### 17. Obtener chats (lista de conversaciones)
+GET {{apiUrl}}/api/chats?session={{session}}
+x-api-key: {{apiKey}}
+
+### 18. Obtener mensajes de un chat
+GET {{apiUrl}}/api/chats/{{session}}/59167023053/messages
+x-api-key: {{apiKey}}
+
+### 19. Obtener contactos
+GET {{apiUrl}}/api/contacts?session={{session}}
+x-api-key: {{apiKey}}
+
+# ============================================
+# WEBHOOKS (para recibir mensajes en tiempo real)
+# ============================================
+
+### 20. Crear sesión con webhook
+POST {{apiUrl}}/api/sessions
+x-api-key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "name": "{{session}}",
+  "config": {
+    "webhooks": [
+      {
+        "url": "http://localhost:3000/api/webhooks/whatsapp",
+        "events": [
+          "message",
+          "session.status"
+        ]
+      }
+    ]
+  }
+}
+
+# ============================================
+# ESTADOS DE SESIÓN
+# ============================================
+# STOPPED - Sesión creada pero no iniciada
+# STARTING - Iniciando sesión
+# SCAN_QR_CODE - Requiere escanear QR
+# WORKING - Sesión activa y lista
+# FAILED - Error en la sesión
+
+### 21. Obtener screenshot de la sesión (binario)
+GET {{apiUrl}}/api/screenshot?session={{session}}
+x-api-key: {{apiKey}}
+Accept: image/png
+
+### 22. Obtener screenshot (base64)
+GET {{apiUrl}}/api/screenshot?session={{session}}
+x-api-key: {{apiKey}}
+Accept: application/json

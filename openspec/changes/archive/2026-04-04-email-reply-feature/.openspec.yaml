@@ -1,0 +1,11 @@
+name: email-reply-feature
+description: Implementar funcionalidad de responder correo con autollenado del formulario y envío vía API
+status: completed
+created: 2026-04-04
+artifacts:
+  - id: proposal
+    status: done
+  - id: design
+    status: done
+  - id: tasks
+    status: done

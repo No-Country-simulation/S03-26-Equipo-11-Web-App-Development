@@ -1,0 +1,70 @@
+# WhatsApp API Tests
+
+@baseUrl = http://localhost:3000/api/
+
+
+### Login (obtener sesión)
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+Origin: http://localhost:3000
+
+{
+  "email": "favian.medina.gemio@gmail.com",
+  "password": "1"
+}
+
+### Cerrar sesión
+POST {{baseUrl}}/auth/signout
+Content-Type: application/json
+Origin: http://localhost:3000
+
+### Obtener sesión actual
+GET {{baseUrl}}/auth/get-session
+
+
+
+#### GET - Listar contactos WhatsApp simple
+GET {{baseUrl}}/whatsapp
+
+ 
+
+
+### POST - Enviar mensaje de WhatsApp
+POST http://localhost:3000/api/whatsapp/send
+Content-Type: application/json
+Cookie: better-auth.session_token=o0uej2puLso5QTvLBVEbd4pPRFjT5u1H.qdx59rmTsY8JcHwRicfZQsufyQjftTymKESO135X4PM%3D
+
+{
+  "to": "+59167023053",
+  "text": "Hola mundo desde el CRM Iv "
+}
+
+### POST - Enviar mensaje usando número de teléfono
+POST http://localhost:3000/api/whatsapp/send
+Cookie: better-auth.session_token=your-session-token
+Content-Type: application/json
+
+{
+  "to": "+59176543210",
+  "text": "Hola mundo"
+}
+
+### POST - Sincronizar mensajes desde WPPConnect
+POST http://localhost:3000/api/whatsapp/sync
+Cookie: better-auth.session_token=your-session-token
+
+
+
+
+
+
+### GET - Listar contactos WhatsApp paginacion 
+GET {{baseUrl}}/whatsapp?limit=20&offset=0
+
+
+### GET - Listar contactos con búsqueda
+GET {{baseUrl}}/whatsapp?search=favian&limit=10
+
+### GET - Mensajes de un contacto específico no lierado por waha
+GET http://localhost:3000/api/whatsapp/{contactId}?limit=20&offset=0
+Cookie: better-auth.session_token=your-session-token

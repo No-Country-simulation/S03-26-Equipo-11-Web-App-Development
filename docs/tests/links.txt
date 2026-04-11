@@ -1,0 +1,29 @@
+swager ui
+http://localhost:3000/api-docs
+
+landing page
+http://localhost:3000
+
+login
+http://localhost:3000/login
+
+register
+http://localhost:3000/register
+
+contacts
+http://localhost:3000/contacts
+
+dashboard
+http://localhost:3000/dashboard
+
+email
+http://localhost:3000/email
+
+reminders
+http://localhost:3000/reminders
+
+settings
+http://localhost:3000/settings
+
+whatsapp
+http://localhost:3000/whatsapp

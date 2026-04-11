@@ -1,0 +1,25 @@
+{
+  "name": "startup-crm-scripts",
+  "version": "1.0.0",
+  "description": "Scripts de base de datos para Startup CRM",
+  "type": "module",
+  "scripts": {
+    "db:seed": "tsx db/seed-all.ts",
+    "db:seed:users": "tsx db/users.ts",
+    "db:seed:contacts": "tsx db/contacts.ts",
+    "db:seed:templates": "tsx db/templates.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:check": "drizzle-kit check"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.15.15",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.31.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.22.0",
+    "tsx": "^4.0.0"
+  }
+}

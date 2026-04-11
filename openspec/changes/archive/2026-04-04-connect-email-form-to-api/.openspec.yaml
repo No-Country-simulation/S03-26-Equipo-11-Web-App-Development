@@ -1,0 +1,11 @@
+name: connect-email-form-to-api
+description: Conectar formulario de composición de email al endpoint POST /api/email/send con validación, estados de carga y feedback
+status: completed
+created: 2026-04-04
+artifacts:
+  - id: proposal
+    status: done
+  - id: design
+    status: done
+  - id: tasks
+    status: done

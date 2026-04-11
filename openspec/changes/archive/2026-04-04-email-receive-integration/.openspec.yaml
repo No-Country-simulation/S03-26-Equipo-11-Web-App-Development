@@ -1,0 +1,11 @@
+name: email-receive-integration
+description: Implementar recepción de emails en bandeja de entrada con diferenciación visual entre leídos y no leídos
+status: completed
+created: 2026-04-04
+artifacts:
+  - id: proposal
+    status: done
+  - id: design
+    status: done
+  - id: tasks
+    status: done

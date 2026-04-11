@@ -1,0 +1,84 @@
+# WhatsApp API Tests
+
+### GET - Listar contactos WhatsApp
+# Requires authentication via cookie
+GET http://localhost:3000/api/whatsapp?limit=20&offset=0
+Cookie: better-auth.session_token=your-session-token
+
+### GET - Listar contactos con búsqueda
+GET http://localhost:3000/api/whatsapp?search=Juan&limit=10
+Cookie: better-auth.session_token=your-session-token
+
+### GET - Mensajes de un contacto específico
+GET http://localhost:3000/api/whatsapp/{contactId}?limit=20&offset=0
+Cookie: better-auth.session_token=your-session-token
+
+### POST - Enviar mensaje de WhatsApp
+POST http://localhost:3000/api/whatsapp/send
+Cookie: better-auth.session_token=your-session-token
+Content-Type: application/json
+
+{
+  "contactId": "uuid-del-contacto",
+  "text": "Hola desde el CRM"
+}
+
+### POST - Enviar mensaje usando número de teléfono
+POST http://localhost:3000/api/whatsapp/send
+Cookie: better-auth.session_token=your-session-token
+Content-Type: application/json
+
+{
+  "to": "+59176543210",
+  "text": "Hola mundo"
+}
+
+### POST - Sincronizar mensajes desde WPPConnect
+POST http://localhost:3000/api/whatsapp/sync
+Cookie: better-auth.session_token=your-session-token
+
+### Respuestas esperadas
+
+# GET /api/whatsapp
+# {
+#   "data": [
+#     {
+#       "contactId": "uuid",
+#       "name": "Juan Perez",
+#       "phone": "+59176543210",
+#       "lastMessage": "Hola mundo",
+#       "unreadCount": 2,
+#       "lastMessageAt": "2026-04-07T10:30:00Z"
+#     }
+#   ],
+#   "pagination": { "page": 1, "limit": 20, "total": 50, "totalPages": 3 }
+# }
+
+# GET /api/whatsapp/[contactId]
+# {
+#   "data": [
+#     {
+#       "id": "uuid",
+#       "contenido": "Mensaje de ejemplo",
+#       "direccion": "entrante",
+#       "fecha": "2026-04-07T10:30:00Z",
+#       "leido": false
+#     }
+#   ],
+#   "pagination": { "page": 1, "limit": 20, "total": 100, "totalPages": 5 }
+# }
+
+# POST /api/whatsapp/send
+# {
+#   "status": "sent",
+#   "messageId": "wamid.xxx",
+#   "contactId": "uuid",
+#   "message": "Mensaje de WhatsApp enviado correctamente"
+# }
+
+# POST /api/whatsapp/sync
+# {
+#   "status": "ok",
+#   "newMessages": 5,
+#   "contactsUpdated": 2
+# }

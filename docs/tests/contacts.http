@@ -1,0 +1,67 @@
+@baseUrl = http://localhost:3000/api/
+
+
+### Login (obtener sesión)
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+Origin: http://localhost:3000
+
+{
+  "email": "favian.medina.gemio@gmail.com",
+  "password": "1"
+}
+
+### Cerrar sesión
+POST {{baseUrl}}/auth/signout
+Content-Type: application/json
+Origin: http://localhost:3000
+
+### Obtener sesión actual
+GET {{baseUrl}}/auth/get-session
+
+### 1 Listar contactos (paginación por defecto 20)
+GET {{baseUrl}}/contacts
+x-user-id: test-user-id
+
+### 13 Crear contacto (válido)
+POST {{baseUrl}}/contacts
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "name": "ausbert mariaca",
+  "email": "jose.mariaca@example.com",
+  "phone": "+56912345678",
+  "company": "Acme Corp",
+  "stage": "new",
+  "tags": ["vip", "lead"],
+  "notes": "Cliente potencial"
+}
+
+###
+@contact_id= 59bfa1f9-d785-4d9a-847a-a9be924c55f3
+
+### 21 Obtener contacto por ID (usar ID de un contacto existente)
+### Reemplazar {{contact_id}} con un ID real
+GET {{baseUrl}}/contacts/{{contact_id}}
+x-user-id: test-user-id
+
+### 24 Actualizar varios campos
+PUT {{baseUrl}}/contacts/{{contact_id}}
+Content-Type: application/json
+x-user-id: test-user-id
+
+{
+  "name": "Juana adiccion",
+  "phone": "+56987654321",
+  "stage": "qualified",
+  "tags": ["vip", "premium"]
+}
+
+### 25 Eliminar contacto (usar con precaución)
+DELETE {{baseUrl}}/contacts/{{contact_id}}
+x-user-id: test-user-id
+
+### 27 Estadísticas del funnel de ventas
+GET {{baseUrl}}/contacts/stats
+x-user-id: test-user-id

@@ -1,0 +1,75 @@
+schema: spec-driven
+
+context: |
+  # Startup CRM - Project Context
+  
+  ## Tech Stack
+  - Next.js 16 (App Router)
+  - React 19
+  - TypeScript 5 (strict mode)
+  - Tailwind CSS v4 (CSS-first config, no tailwind.config.js)
+  - Radix UI (Dialog, Label, Slot, Tabs, Select)
+  - lucide-react (iconos)
+  - recharts (gráficos)
+  - nodemailer + imap (email SMTP/IMAP)
+  - Better Auth (autenticación)
+  - Drizzle ORM + SQLite (persistencia)
+  - BullMQ + Redis (cola de tareas)
+
+  ## Domain: CRM para Startups
+  Sistema CRM inteligente con integración nativa a WhatsApp y correo electrónico.
+  Gestión de leads y clientes en tiempo real con segmentación por funnel de ventas.
+  
+  ## Equipo de Desarrollo (Equipo 11)
+  - Carla Vallejos Ari (Full Stack)
+  - Ricardo Thalhuen Moraga Cortez (Full Stack)
+  - Daniel Lorenzo Ramos (Backend)
+  - Rodrigo Fernández (Backend)
+  - Favian Medina (Backend)
+  - Mario Cortez (Backend)
+  - Anghelo Flores (Backend)
+
+  ## Convenciones de Código
+  - Componentes: PascalCase (ContactRow, HeroSection)
+  - Funciones: camelCase (exportContactsCSV)
+  - Tipos/Interfaces: PascalCase (Contact, FunnelStage)
+  - Archivos: kebab-case (email-service.ts, mock-data.ts)
+  - Imports ordenados: React > Next.js > terceros > @/components > @/lib > relativo
+  
+  ## Etapas del Funnel
+  new, contacted, qualified, proposal, won, lost
+
+  ## Requerimientos Funcionales
+  - Gestión de contactos con segmentación por funnel
+  - Omnicanalidad (WhatsApp + Email)
+  - Gestión de emails (envío/recepción, etiquetas, plantillas)
+  - Automatización (recordatorios, seguimientos)
+  - Analítica (KPIs, gráficos con recharts)
+  - Exportación (CSV, PDF)
+  - Personalización (etiquetas, vistas, filtros)
+
+  ## Estructura Principal
+  app/
+  ├── (crm)/          # Route group CRM
+  ├── api/            # API routes
+  components/ui/      # Componentes base (Radix)
+  lib/data/           # Datos mock y tipos
+  lib/email/          # Servicios SMTP/IMAP
+
+  ## Comandos
+  - npm run dev (desarrollo)
+  - npm run build (producción)
+  - npm run lint (linting)
+
+  ## Links
+  - docs/architecture/architecture.md (arquitectura completa)
+  - docs/prd.md (requerimientos)
+  - docs/desitions/ (ADRs)
+
+rules:
+  proposal:
+    - Keep proposals under 500 words
+    - Always include a "Non-goals" section
+    - Reference docs/* for context when needed
+  tasks:
+    - Break tasks into chunks of max 2 hours
