@@ -3,21 +3,12 @@ import { sendWhatsAppMessage } from "@/lib/whatsapp/whatsappService";
 import { db } from "@/lib/db";
 import { contacts } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
-import { auth } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("better-auth.session_token");
-    if (!sessionToken?.value) {
-      return NextResponse.json({ error: "Unauthorized - no cookie" }, { status: 401 });
-    }
-    const session = await auth.api.getSession({
-      headers: { cookie: `better-auth.session_token=${sessionToken.value}` },
-    });
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized - invalid session" }, { status: 401 });
+    const userId = request.headers.get("x-user-id");
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const bodyText = await request.text();
