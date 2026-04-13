@@ -2,6 +2,9 @@
 # Documentación: https://waha.devlike.pro/docs/how-to/sessions/
 
 @apiUrl = http://localhost:4000
+#@apiUrl = https://crm-waha.onrender.com
+#@apiUrl = https://cultural-spokesman-crazed.ngrok-free.dev/
+
 @apiKey = 0148d3609e824423acf609c15f2b42b8
 @session = default
 

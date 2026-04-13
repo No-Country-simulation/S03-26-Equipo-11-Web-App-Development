@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ensureAuthSchema } from "@/lib/auth/ensure-auth-schema";
 import { sendWhatsAppMessage } from "@/lib/whatsapp/whatsappService";
 import { db } from "@/lib/db";
 import { contacts } from "@/lib/db/schema";
@@ -10,6 +11,8 @@ export async function POST(request: Request) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    await ensureAuthSchema();
 
     const bodyText = await request.text();
     let bodyJson: unknown;

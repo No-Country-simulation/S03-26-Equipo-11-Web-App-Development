@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ensureAuthSchema } from "@/lib/auth/ensure-auth-schema";
 import { getWhatsAppContacts, syncWhatsAppMessages } from "@/lib/whatsapp/whatsappService";
 
 export async function GET(request: Request) {
@@ -7,8 +8,6 @@ export async function GET(request: Request) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    await syncWhatsAppMessages();
 
     const { searchParams } = new URL(request.url);
     const page = Math.min(parseInt(searchParams.get("page") || "1"), 100);
@@ -31,19 +30,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    await ensureAuthSchema();
+
     const result = await syncWhatsAppMessages();
 
-    if (result.errors && result.errors.length > 0) {
-      return NextResponse.json(
-        { error: "Sync failed", details: result.errors },
-        { status: 500 }
-      );
-    }
-
+    // Return detailed result for debugging
     return NextResponse.json({
-      status: "ok",
+      status: result.errors && result.errors.length > 0 ? "partial" : "ok",
       newMessages: result.newMessages,
       contactsUpdated: result.contactsUpdated,
+      errors: result.errors || [],
+    }, {
+      status: result.errors && result.errors.length > 0 ? 206 : 200,
     });
   } catch (error) {
     console.error("WhatsApp sync API error:", error);

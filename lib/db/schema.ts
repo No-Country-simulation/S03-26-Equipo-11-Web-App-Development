@@ -1,6 +1,7 @@
 // Schema de Base de Datos - Startup CRM
 // Usado por Drizzle ORM con SQLite/libSQL (Turso)
 
+import { randomUUID } from "crypto";
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
 // Helper para generar UUIDs compatible con Node.js y Edge Runtime
@@ -8,8 +9,7 @@ const generateId = () => {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
   }
-  // Fallback para versiones antiguas de Node.js
-  return require("crypto").randomUUID();
+  return randomUUID();
 };
 
 // ============================================
@@ -164,7 +164,14 @@ export const messages = sqliteTable("messages", {
   messageId: text("message_id"),
   metadata: text("metadata", { mode: "json" }),
   createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
-});
+}, (table) => [
+  index("messages_contactId_idx").on(table.contactId),
+  index("messages_canal_idx").on(table.canal),
+  index("messages_contactId_canal_idx").on(table.contactId, table.canal),
+  index("messages_contactId_canal_createdAt_idx").on(table.contactId, table.canal, table.createdAt),
+  index("messages_canal_direccion_leido_idx").on(table.canal, table.direccion, table.leido),
+  index("messages_messageId_idx").on(table.messageId),
+]);
 
 // ============================================
 // CONTROL DE SINCRONIZACIÓN DE EMAIL

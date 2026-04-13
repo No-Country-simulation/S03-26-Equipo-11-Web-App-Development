@@ -1,44 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { Role } from "@/lib/auth/session";
 
-const PUBLIC_PATHS = ["/api/auth", "/api/health"];
+const PUBLIC_PATHS = ["/api/auth", "/api/health", "/api/whatsapp/webhook"];
 
-async function getSessionUser(request: NextRequest): Promise<{ id: string; role: Role } | null> {
-  const sessionToken = request.cookies.get("better-auth.session_token");
-
-  if (!sessionToken?.value) {
-    return null;
+function getRole(value: unknown): Role {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "role" in value
+  ) {
+    const role = value.role;
+    if (role === "admin" || role === "agent" || role === "user") {
+      return role;
+    }
   }
 
+  return "user";
+}
+
+async function getSessionUser(request: NextRequest): Promise<{ id: string; role: Role } | null> {
   try {
     const { auth } = await import("@/lib/auth");
+    // Pasamos todos los headers de la petición original. 
+    // Better Auth se encargará de buscar la cookie correcta (con o sin prefijo __Secure-)
     const session = await auth.api.getSession({
-      headers: {
-        cookie: `better-auth.session_token=${sessionToken.value}`,
-      },
+      headers: request.headers,
     });
 
     if (!session?.user) {
       return null;
     }
 
-    const { db } = await import("@/lib/db");
-    const { users } = await import("@/lib/db/schema");
-    const { eq } = await import("drizzle-orm");
-
-    const userRecord = await db.query.users.findFirst({
-      where: eq(users.id, session.user.id),
-    });
-
-    if (!userRecord) {
-      return null;
-    }
-
     return {
-      id: userRecord.id,
-      role: userRecord.role as Role,
+      id: session.user.id,
+      role: getRole(session.user),
     };
-  } catch {
+  } catch (error) {
+    console.error("Middleware session error:", error);
     return null;
   }
 }

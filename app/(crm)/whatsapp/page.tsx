@@ -76,6 +76,12 @@ export default function WhatsAppPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const fetchContacts = async () => {
     setLoading(true);
@@ -88,7 +94,10 @@ export default function WhatsAppPage() {
       const data: ContactsResponse = await res.json();
       setContacts(data.data);
       if (data.data.length > 0 && !selectedContact) {
-        setSelectedContact(data.data[0]);
+        const firstContact = data.data[0];
+        setSelectedContact(firstContact);
+        // Fetch messages in parallel with contacts
+        fetchMessages(firstContact.contactId);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");
@@ -100,7 +109,7 @@ export default function WhatsAppPage() {
   const fetchMessages = async (contactId: string) => {
     setLoadingMessages(true);
     try {
-      const res = await fetch(`/api/whatsapp/${contactId}?limit=100`, { credentials: "include" });
+      const res = await fetch(`/api/whatsapp/${contactId}?limit=5`, { credentials: "include" });
       if (!res.ok) throw new Error("Error al cargar mensajes");
       const data: MessagesResponse = await res.json();
       setMessages(data.data);
@@ -132,7 +141,21 @@ export default function WhatsAppPage() {
     e.preventDefault();
     if (!messageText.trim() || !selectedContact) return;
 
+    const textToSend = messageText;
     setSending(true);
+    setError(null);
+
+    // Optimistic update: show message immediately
+    const optimisticMsg: WhatsAppMessage = {
+      id: `opt-${Date.now()}`,
+      contenido: textToSend,
+      direccion: "saliente",
+      fecha: new Date().toISOString(),
+      leido: true,
+    };
+    setMessages((prev) => [...prev, optimisticMsg]);
+    setMessageText("");
+
     try {
       const res = await fetch("/api/whatsapp/send", {
         method: "POST",
@@ -140,7 +163,7 @@ export default function WhatsAppPage() {
         credentials: "include",
         body: JSON.stringify({
           to: selectedContact.phone,
-          text: messageText,
+          text: textToSend,
         }),
       });
 
@@ -149,10 +172,12 @@ export default function WhatsAppPage() {
         throw new Error(data.error || "Error al enviar mensaje");
       }
 
-      setMessageText("");
+      // Replace optimistic message with real one from server
       fetchMessages(selectedContact.contactId);
       fetchContacts();
     } catch (err) {
+      // Remove optimistic message on error
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id));
       setError(err instanceof Error ? err.message : "Error al enviar");
     } finally {
       setSending(false);
@@ -161,19 +186,38 @@ export default function WhatsAppPage() {
 
   const handleSync = async () => {
     setSyncing(true);
+    setError(null);
     try {
-      const res = await fetch("/api/whatsapp/sync", {
+      const res = await fetch("/api/whatsapp", {
         method: "POST",
         credentials: "include",
       });
-      if (res.ok) {
-        fetchContacts();
-        if (selectedContact) {
-          fetchMessages(selectedContact.contactId);
-        }
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data && typeof data.error === "string" ? data.error : "Error al sincronizar"
+        );
+      }
+
+      // Show sync results
+      const { newMessages, contactsUpdated, errors } = data;
+      if (newMessages > 0 || contactsUpdated > 0) {
+        setError(`✅ Sync: ${newMessages} mensajes nuevos, ${contactsUpdated} contactos actualizados`);
+      } else if (errors && errors.length > 0) {
+        setError(`⚠️ Sync completado con advertencias: ${errors.slice(0, 2).join(", ")}`);
+      } else {
+        setError("ℹ️ Sync: No hay mensajes nuevos");
+      }
+
+      fetchContacts();
+      if (selectedContact) {
+        fetchMessages(selectedContact.contactId);
       }
     } catch (err) {
       console.error("Sync error:", err);
+      setError(err instanceof Error ? err.message : "Error al sincronizar");
     } finally {
       setSyncing(false);
     }
@@ -295,8 +339,8 @@ export default function WhatsAppPage() {
                   messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.direccion === "saliente" ? "justify-end" : "justify-start"}`}>
                       <div className={`max-w-[85%] sm:max-w-[75%] rounded-lg px-3 py-2 break-words shadow-sm ${
-                        msg.direccion === "saliente" 
-                          ? "bg-green-500 text-white" 
+                        msg.direccion === "saliente"
+                          ? "bg-green-500 text-white"
                           : "bg-background text-foreground border"
                       }`}>
                         <p className="text-sm whitespace-pre-wrap">{msg.contenido}</p>
@@ -307,6 +351,7 @@ export default function WhatsAppPage() {
                     </div>
                   ))
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
               {/* Input Area */}

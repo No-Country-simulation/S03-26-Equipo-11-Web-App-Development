@@ -1,4 +1,5 @@
 import { client } from "@/lib/db";
+import { fixLegacyAuthReferences } from "./fix-schema";
 
 type ColumnMap = Record<string, string>;
 
@@ -195,6 +196,7 @@ let ensurePromise: Promise<void> | null = null;
 export async function ensureAuthSchema(): Promise<void> {
   if (!ensurePromise) {
     ensurePromise = (async () => {
+      await fixLegacyAuthReferences();
       await createUsersTable();
       await createSessionsTable();
       await createAccountsTable();
@@ -207,3 +209,4 @@ export async function ensureAuthSchema(): Promise<void> {
 
   await ensurePromise;
 }
+

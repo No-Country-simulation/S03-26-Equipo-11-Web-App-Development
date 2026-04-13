@@ -72,6 +72,10 @@ interface WahaMessageLike {
   ack?: number;
 }
 
+function shouldUseRemoteHistory(): boolean {
+  return process.env.WHATSAPP_USE_REMOTE_HISTORY === "true";
+}
+
 export async function sendWhatsAppMessage(payload: WhatsAppSendPayload): Promise<WhatsAppSendResult> {
   const apiUrl = process.env.WHATSAPP_API_URL;
   const apiKey = process.env.WHATSAPP_API_KEY;
@@ -105,38 +109,7 @@ export async function sendWhatsAppMessage(payload: WhatsAppSendPayload): Promise
     const formattedPhone = cleanPhone.startsWith("+") ? cleanPhone : `+${cleanPhone}`;
     const chatId = formattedPhone.replace("+", "") + "@c.us";
 
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (apiKey) {
-      headers["x-api-key"] = apiKey;
-    }
-
-    const response = await fetch(`${apiUrl}/api/sendText`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        session: session,
-        chatId: chatId,
-        text: payload.text,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("WAHA send error:", errorData);
-      return { status: "failed", error: `WAHA error: ${response.status}` };
-    }
-
-    const result = await response.json();
-    let messageId = result.id || result.messageId;
-    
-    if (typeof messageId === "object" && messageId !== null) {
-      messageId = messageId._serialized || messageId.id || `wa_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
-    } else if (!messageId) {
-      messageId = `wa_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
-    }
-
+    // Resolve contact ID
     let finalContactId = contactId;
     if (!finalContactId) {
       const existing = await db
@@ -163,9 +136,13 @@ export async function sendWhatsAppMessage(payload: WhatsAppSendPayload): Promise
       }
     }
 
+    // Generate message ID upfront
+    const messageId = `wa_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+
+    // Save to DB FIRST - this is the source of truth
     if (finalContactId) {
       await db.insert(messages).values({
-        id: randomUUID(),
+        id: messageId,
         contactId: finalContactId,
         canal: "whatsapp",
         direccion: "saliente",
@@ -181,6 +158,54 @@ export async function sendWhatsAppMessage(payload: WhatsAppSendPayload): Promise
         .set({ lastContact: new Date().toISOString(), updatedAt: new Date().toISOString() })
         .where(eq(contacts.id, finalContactId));
     }
+
+    // Fire-and-forget: send to WAHA in background
+    // Don't block the response on WAHA - the message is already saved
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (apiKey) {
+      headers["x-api-key"] = apiKey;
+    }
+
+    // Use setTimeout to detach from the response lifecycle
+    setTimeout(async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch(`${apiUrl}/api/sendText`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            session: session,
+            chatId: chatId,
+            text: payload.text,
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("WAHA send error (background):", response.status, errorData);
+        } else {
+          const result = await response.json();
+          const waMessageId = result.id || result.messageId || messageId;
+
+          // Update the message with WAHA's real message ID
+          if (typeof waMessageId === "string" && waMessageId !== messageId) {
+            await db
+              .update(messages)
+              .set({ messageId: waMessageId })
+              .where(eq(messages.id, messageId));
+          }
+        }
+      } catch (error) {
+        console.error("WAHA background send error:", error);
+      }
+    }, 0);
 
     return {
       status: "sent",
@@ -204,37 +229,27 @@ export async function getWhatsAppContacts(
 ): Promise<WhatsAppContactsResponse> {
   const offset = (page - 1) * limit;
 
-  let contactsWithMessages: { contactId: string }[] = [];
+  // Optimized: Get contact IDs first, then fetch last messages and unread counts in batch
+  // Reduces from N+1 queries (101 queries for 50 contacts) to just 3 queries total
+  const searchLower = search ? `%${search.toLowerCase()}%` : null;
 
-  if (search) {
-    const searchLower = `%${search.toLowerCase()}%`;
-    const contactsWithSearch = await db
-      .selectDistinct({
-        contactId: messages.contactId,
-      })
-      .from(messages)
-      .innerJoin(contacts, eq(messages.contactId, contacts.id))
-      .where(
-        and(
-          eq(messages.canal, "whatsapp"),
-          or(
-            like(contacts.name, searchLower),
-            like(contacts.phone, searchLower)
-          )
-        )
-      );
-    contactsWithMessages = contactsWithSearch.filter((c): c is { contactId: string } => c.contactId !== null);
-  } else {
-    const allContactsWithMessages = await db
-      .selectDistinct({
-        contactId: messages.contactId,
-      })
-      .from(messages)
-      .where(eq(messages.canal, "whatsapp"));
-    contactsWithMessages = allContactsWithMessages.filter((c): c is { contactId: string } => c.contactId !== null);
-  }
+  // Step 1: Get all contact IDs that have WhatsApp messages
+  const contactIdsResult = await db
+    .selectDistinct({
+      contactId: messages.contactId,
+    })
+    .from(messages)
+    .innerJoin(contacts, eq(messages.contactId, contacts.id))
+    .where(
+      and(
+        eq(messages.canal, "whatsapp"),
+        searchLower ? or(like(contacts.name, searchLower), like(contacts.phone, searchLower)) : undefined
+      )
+    );
 
-  const contactIds = contactsWithMessages.map((c) => c.contactId);
+  const contactIds = contactIdsResult
+    .map((c) => c.contactId)
+    .filter((id): id is string => id !== null);
 
   if (contactIds.length === 0) {
     return {
@@ -254,57 +269,81 @@ export async function getWhatsAppContacts(
     };
   }
 
-  const contactData = await db
-    .select()
+  // Step 2: Get last messages for all paginated contacts in ONE query
+  const lastMessagesResult = await db
+    .select({
+      contactId: messages.contactId,
+      contenido: messages.contenido,
+      createdAt: messages.createdAt,
+    })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.canal, "whatsapp"),
+        sql`${messages.contactId} IN ${paginatedIds}`
+      )
+    )
+    .orderBy(desc(messages.createdAt));
+
+  // Deduplicate: keep only the last message per contact
+  const lastMessageMap = new Map<string, { contenido: string | null; createdAt: string | null }>();
+  for (const msg of lastMessagesResult) {
+    if (msg.contactId && !lastMessageMap.has(msg.contactId)) {
+      lastMessageMap.set(msg.contactId, {
+        contenido: msg.contenido,
+        createdAt: msg.createdAt,
+      });
+    }
+  }
+
+  // Step 3: Get unread counts for all paginated contacts in ONE query
+  const unreadCountsResult = await db
+    .select({
+      contactId: messages.contactId,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.canal, "whatsapp"),
+        eq(messages.direccion, "entrante"),
+        eq(messages.leido, false),
+        sql`${messages.contactId} IN ${paginatedIds}`
+      )
+    )
+    .groupBy(messages.contactId);
+
+  const unreadMap = new Map(
+    unreadCountsResult.map((c) => [c.contactId, Number(c.count)])
+  );
+
+  // Step 4: Get contact details
+  const contactsResult = await db
+    .select({
+      id: contacts.id,
+      name: contacts.name,
+      phone: contacts.phone,
+      lastContact: contacts.lastContact,
+    })
     .from(contacts)
     .where(sql`${contacts.id} IN ${paginatedIds}`);
 
-  if (contactData.length === 0) {
+  // Combine all data
+  const formattedContacts: WhatsAppContact[] = contactsResult.map((contact) => {
+    const lastMsg = lastMessageMap.get(contact.id);
+    const unreadCount = unreadMap.get(contact.id) || 0;
+
     return {
-      data: [],
-      pagination: { page, limit, total, totalPages },
-    };
-  }
-
-  const formattedContacts: WhatsAppContact[] = [];
-
-  for (const contact of contactData) {
-    const lastMessageResult = await db
-      .select()
-      .from(messages)
-      .where(and(eq(messages.contactId, contact.id), eq(messages.canal, "whatsapp")))
-      .orderBy(desc(messages.createdAt))
-      .limit(1);
-
-    const lastMessage = lastMessageResult[0];
-    const lastMessagePreview = lastMessage
-      ? lastMessage.contenido?.slice(0, 30) || ""
-      : "";
-
-    const unreadCountResult = await db
-      .select()
-      .from(messages)
-      .where(
-        and(
-          eq(messages.contactId, contact.id),
-          eq(messages.canal, "whatsapp"),
-          eq(messages.direccion, "entrante"),
-          eq(messages.leido, false)
-        )
-      );
-
-    const unreadCount = unreadCountResult.length;
-
-    formattedContacts.push({
       contactId: contact.id,
       name: contact.name,
       phone: contact.phone || "",
-      lastMessage: lastMessagePreview,
+      lastMessage: lastMsg?.contenido?.slice(0, 30) || "",
       unreadCount,
-      lastMessageAt: lastMessage?.createdAt || contact.lastContact || "",
-    });
-  }
+      lastMessageAt: lastMsg?.createdAt || contact.lastContact || "",
+    };
+  });
 
+  // Sort by last message date
   formattedContacts.sort((a, b) => {
     const dateA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
     const dateB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
@@ -322,191 +361,50 @@ export async function getWhatsAppMessages(
   page: number = 1,
   limit: number = 50
 ): Promise<WhatsAppMessagesResponse> {
-  const apiUrl = process.env.WHATSAPP_API_URL;
-  const apiKey = process.env.WHATSAPP_API_KEY;
-  const session = process.env.WHATSAPP_SESSION || "default";
-
-  const contactData = await db
+  // Always read from local DB - it's the single source of truth
+  // Sync brings new messages INTO the DB, this function reads them OUT
+  const allMessages = await db
     .select()
-    .from(contacts)
-    .where(eq(contacts.id, contactId))
-    .limit(1);
-
-  if (contactData.length === 0) {
-    return {
-      data: [],
-      pagination: { page, limit, total: 0, totalPages: 0 },
-    };
-  }
-
-  const phone = contactData[0].phone;
-  if (!phone) {
-    return {
-      data: [],
-      pagination: { page, limit, total: 0, totalPages: 0 },
-    };
-  }
-
-  const cleanPhone = phone.replace(/[^\d+]/g, "");
-  const formattedPhone = cleanPhone.startsWith("+") ? cleanPhone : `+${cleanPhone}`;
-  const chatId = formattedPhone.replace("+", "") + "@c.us";
-
-  if (!apiUrl) {
-    const allMessages = await db
-      .select()
-      .from(messages)
-      .where(
-        and(
-          eq(messages.contactId, contactId),
-          eq(messages.canal, "whatsapp")
-        )
+    .from(messages)
+    .where(
+      and(
+        eq(messages.contactId, contactId),
+        eq(messages.canal, "whatsapp")
       )
-      .orderBy(desc(messages.createdAt));
+    )
+    .orderBy(asc(messages.createdAt));
 
-    const total = allMessages.length;
-    const totalPages = Math.ceil(total / limit);
-    const paginatedMessages = allMessages.slice((page - 1) * limit, page * limit);
+  // Return only the last 5 messages (most recent)
+  const lastMessages = allMessages.slice(-limit);
 
-    const formattedMessages: WhatsAppMessage[] = paginatedMessages.map((msg) => ({
-      id: msg.id,
-      contenido: msg.contenido || "",
-      direccion: msg.direccion as "entrante" | "saliente",
-      fecha: msg.createdAt,
-      leido: msg.leido,
-    }));
+  const total = allMessages.length;
+  const totalPages = Math.ceil(total / limit);
 
-    return {
-      data: formattedMessages,
-      pagination: { page, limit, total, totalPages },
-    };
-  }
+  const formattedMessages: WhatsAppMessage[] = lastMessages.map((msg) => ({
+    id: msg.id,
+    contenido: msg.contenido || "",
+    direccion: msg.direccion as "entrante" | "saliente",
+    fecha: msg.createdAt,
+    leido: msg.leido,
+  }));
 
-  try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (apiKey) {
-      headers["x-api-key"] = apiKey;
-    }
-
-    const response = await fetch(`${apiUrl}/api/${session}/chats/${chatId}/messagesHistory?limit=${limit}`, {
-      method: "GET",
-      headers,
-    });
-
-    if (!response.ok) {
-      console.error("WAHA messagesHistory error:", response.status, await response.text());
-      const allMessages = await db
-        .select()
-        .from(messages)
-        .where(
-          and(
-            eq(messages.contactId, contactId),
-            eq(messages.canal, "whatsapp")
-          )
-        )
-      .orderBy(asc(messages.createdAt));
-
-      const total = allMessages.length;
-      const totalPages = Math.ceil(total / limit);
-      const paginatedMessages = allMessages.slice((page - 1) * limit, page * limit);
-
-      const formattedMessages: WhatsAppMessage[] = paginatedMessages.map((msg) => ({
-        id: msg.id,
-        contenido: msg.contenido || "",
-        direccion: msg.direccion as "entrante" | "saliente",
-        fecha: msg.createdAt,
-        leido: msg.leido,
-      }));
-
-      return {
-        data: formattedMessages,
-        pagination: { page, limit, total, totalPages },
-      };
-    }
-
-    const wahaMessages = await response.json();
-    const messagesArray = Array.isArray(wahaMessages) ? wahaMessages : [];
-
-    const total = messagesArray.length;
-    const totalPages = Math.ceil(total / limit);
-    const paginatedMessages = messagesArray.slice((page - 1) * limit, page * limit).reverse();
-
-    const formattedMessages: WhatsAppMessage[] = paginatedMessages.map((msg: WahaMessageLike) => {
-      const structuredId =
-        typeof msg.id === "object" && msg.id !== null ? msg.id : undefined;
-      const msgId =
-        structuredId?._serialized ||
-        structuredId?.id ||
-        msg.key?.id ||
-        `wa_${Math.random().toString(36).slice(2)}`;
-      return {
-        id: msgId,
-        contenido: msg.body || msg.content || msg.message?.conversation || msg.message?.extendedTextMessage?.text || "",
-        direccion: msg.fromMe ? "saliente" : "entrante",
-        fecha: msg.timestamp ? new Date(msg.timestamp * 1000).toISOString() : new Date().toISOString(),
-        leido: (msg.ack ?? 0) >= 2,
-      };
-    });
-
-    if (formattedMessages.length > 0 && formattedMessages[0].direccion === "entrante") {
-      await db
-        .update(messages)
-        .set({ leido: true })
-        .where(
-          and(
-            eq(messages.contactId, contactId),
-            eq(messages.canal, "whatsapp"),
-            eq(messages.direccion, "entrante"),
-            eq(messages.leido, false)
-          )
-        );
-    }
-
-    return {
-      data: formattedMessages,
-      pagination: { page, limit, total, totalPages },
-    };
-  } catch (error) {
-    console.error("WhatsApp messages error:", error);
-    const allMessages = await db
-      .select()
-      .from(messages)
-      .where(
-        and(
-          eq(messages.contactId, contactId),
-          eq(messages.canal, "whatsapp")
-        )
-      )
-      .orderBy(desc(messages.createdAt));
-
-    const total = allMessages.length;
-    const totalPages = Math.ceil(total / limit);
-    const paginatedMessages = allMessages.slice((page - 1) * limit, page * limit);
-
-    const formattedMessages: WhatsAppMessage[] = paginatedMessages.map((msg) => ({
-      id: msg.id,
-      contenido: msg.contenido || "",
-      direccion: msg.direccion as "entrante" | "saliente",
-      fecha: msg.createdAt,
-      leido: msg.leido,
-    }));
-
-    return {
-      data: formattedMessages,
-      pagination: { page, limit, total, totalPages },
-    };
-  }
+  return {
+    data: formattedMessages,
+    pagination: { page, limit, total, totalPages },
+  };
 }
 
 export async function syncWhatsAppMessages(): Promise<WhatsAppSyncResult> {
   const apiUrl = process.env.WHATSAPP_API_URL;
   const apiKey = process.env.WHATSAPP_API_KEY;
   const session = process.env.WHATSAPP_SESSION || "default";
+  const maxChats = parseInt(process.env.WHATSAPP_SYNC_MAX_CHATS || "10");
 
   if (!apiUrl) {
     return { newMessages: 0, contactsUpdated: 0, errors: ["WhatsApp API not configured"] };
   }
+
+  console.log(`[WAHA Sync] Starting sync with ${apiUrl}, session: ${session}, maxChats: ${maxChats}`);
 
   try {
     const headers: Record<string, string> = {
@@ -516,105 +414,194 @@ export async function syncWhatsAppMessages(): Promise<WhatsAppSyncResult> {
       headers["x-api-key"] = apiKey;
     }
 
-    const response = await fetch(`${apiUrl}/api/${session}/chats/overview?limit=50`, {
+    // Step 1: Get chat overview (limited + with timeout)
+    const overviewController = new AbortController();
+    const overviewTimeout = setTimeout(() => overviewController.abort(), 8000);
+
+    const response = await fetch(`${apiUrl}/api/${session}/chats/overview?limit=${maxChats}`, {
       method: "GET",
       headers,
+      signal: overviewController.signal,
     });
+    clearTimeout(overviewTimeout);
 
     if (!response.ok) {
-      return { newMessages: 0, contactsUpdated: 0, errors: [`WAHA error: ${response.status}`] };
+      const errorText = await response.text().catch(() => "");
+      console.error(`[WAHA Sync] Overview failed: ${response.status} ${errorText.slice(0, 200)}`);
+      return { newMessages: 0, contactsUpdated: 0, errors: [`WAHA overview error: ${response.status}`] };
     }
 
-    const data = await response.json();
-    const chatsData = data || [];
+    const chatsData = (await response.json()) || [];
+    console.log(`[WAHA Sync] Found ${chatsData.length} chats in overview`);
 
-    let newMessagesCount = 0;
+    // Filter to only chats with recent activity (last 24 hours)
+    const now = Date.now();
+    const recentChats = chatsData.filter((c: Record<string, unknown>) => {
+      const lastMsg = c.lastMessage as Record<string, number> | undefined;
+      const ts = lastMsg?.timestamp ? lastMsg.timestamp * 1000 : 0;
+      return ts > 0 && (now - ts) < 24 * 60 * 60 * 1000;
+    });
+
+    console.log(`[WAHA Sync] ${recentChats.length} chats with recent activity`);
+
+    if (recentChats.length === 0) {
+      return { newMessages: 0, contactsUpdated: 0, errors: [] };
+    }
+
+    // Step 2: Fetch messages for all recent chats IN PARALLEL (not sequential)
+    const messagesPerChat = parseInt(process.env.WHATSAPP_SYNC_MESSAGES_PER_CHAT || "5");
+    const chatFetchPromises = recentChats.map(async (chat: Record<string, unknown>) => {
+      const chatId = (chat.id as string) || "";
+      const phone = chatId.replace("@g.us", "").replace("@c.us", "") || "";
+      if (!phone || phone.includes("@")) return null;
+
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+
+        const res = await fetch(
+          `${apiUrl}/api/${session}/chats/${chatId}/messages?limit=${messagesPerChat}`,
+          { method: "GET", headers, signal: controller.signal }
+        );
+        clearTimeout(timeout);
+
+        if (!res.ok) return null;
+        const msgs = await res.json();
+        return { chat, phone, messages: Array.isArray(msgs) ? msgs : [] };
+      } catch {
+        return null;
+      }
+    });
+
+    const results = await Promise.all(chatFetchPromises);
+    const validResults = results.filter((r): r is NonNullable<typeof r> => r !== null);
+    console.log(`[WAHA Sync] Fetched messages for ${validResults.length} chats`);
+
+    // Step 3: Flatten all messages and build contact map
+    const uniquePhones = [...new Set(validResults.map((r) => r.phone))];
+    const existingContacts = await db
+      .select()
+      .from(contacts)
+      .where(sql`${contacts.phone} IN ${uniquePhones}`);
+
+    const contactMap = new Map(existingContacts.map((c) => [c.phone, c.id]));
+
+    // Create missing contacts in batch
+    const contactsToCreate = uniquePhones.filter((p) => !contactMap.has(p));
     let contactsUpdatedCount = 0;
 
-    for (const chat of chatsData) {
-      const chatId = chat.id || "";
-      const phone = chatId.replace("@g.us", "").replace("@c.us", "") || "";
-      if (!phone) continue;
+    if (contactsToCreate.length > 0) {
+      const chatMap = new Map(
+        recentChats.map((c: Record<string, unknown>) => {
+          const cid = (c.id as string) || "";
+          const p = cid.replace("@g.us", "").replace("@c.us", "") || "";
+          return [p, c];
+        })
+      );
 
-      let contactId: string;
-
-      const existingContact = await db
-        .select()
-        .from(contacts)
-        .where(eq(contacts.phone, phone))
-        .limit(1);
-
-      if (existingContact.length > 0) {
-        contactId = existingContact[0].id;
-      } else {
-        const newContact = await db
-          .insert(contacts)
-          .values({
-            name: chat.name || `WhatsApp: ${phone}`,
-            phone: phone,
+      const newContacts = await db
+        .insert(contacts)
+        .values(contactsToCreate.map((phone) => {
+          const chat = chatMap.get(phone) as Record<string, unknown> | undefined;
+          return {
+            name: (chat?.name as string) || `WhatsApp: ${phone}`,
+            phone,
             email: `${phone}@whatsapp.local`,
-            stage: "new",
-            lastContact: new Date().toISOString(),
+            stage: "new" as const,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          })
-          .returning({ id: contacts.id });
-        contactId = newContact[0].id;
-        contactsUpdatedCount++;
+          };
+        }))
+        .returning({ id: contacts.id, phone: contacts.phone });
+
+      for (const nc of newContacts) contactMap.set(nc.phone, nc.id);
+      contactsUpdatedCount = newContacts.length;
+    }
+
+    // Step 4: Collect all candidate messages
+    interface MsgCandidate {
+      phone: string;
+      body: string;
+      fromMe: boolean;
+      msgId: string;
+      timestamp: number;
+    }
+    const candidates: MsgCandidate[] = [];
+    for (const result of validResults) {
+      for (const msg of result.messages) {
+        const msgRec = msg as Record<string, unknown>;
+        const body = msgRec.body as string | undefined || msgRec.content as string | undefined || "";
+        if (!body) continue;
+
+        const idRec = msgRec.id as Record<string, string> | undefined;
+        const structuredId = idRec && typeof idRec === "object" ? idRec : undefined;
+        const msgId = (structuredId?._serialized || structuredId?.id || (msgRec.key as Record<string, string>)?.id || `${result.phone}_${msgRec.timestamp}`) as string;
+        const fromMe = msgRec.fromMe === true;
+        const timestamp = (msgRec.timestamp as number) || Math.floor(Date.now() / 1000);
+
+        candidates.push({ phone: result.phone, body, fromMe, msgId, timestamp });
       }
+    }
 
-      const lastMsg = chat.lastMessage;
-      if (lastMsg && typeof lastMsg === "object" && lastMsg.body) {
-        const messageId = lastMsg.id || `${chatId}_${lastMsg.timestamp}`;
-        const existingMessage = await db
-          .select()
-          .from(messages)
-          .where(eq(messages.messageId, messageId))
-          .limit(1);
+    if (candidates.length === 0) {
+      return { newMessages: 0, contactsUpdated: contactsUpdatedCount, errors: [] };
+    }
 
-        if (existingMessage.length === 0) {
-          await db.insert(messages).values({
-            id: randomUUID(),
-            contactId: contactId,
-            canal: "whatsapp",
-            direccion: lastMsg.fromMe ? "saliente" : "entrante",
-            contenido: lastMsg.body,
-            leido: false,
-            entregado: true,
-            messageId: messageId,
-            createdAt: new Date((lastMsg.timestamp || Date.now() / 1000) * 1000).toISOString(),
-            metadata: JSON.stringify({
-              ack: lastMsg.ack,
-              ackName: lastMsg.ackName,
-              source: lastMsg.source,
-              hasMedia: lastMsg.hasMedia,
-              mediaType: lastMsg.media?.mimetype,
-              originalTimestamp: lastMsg.timestamp,
-              from: lastMsg.from,
-              to: lastMsg.to,
-            }),
-          });
-          newMessagesCount++;
-        }
-      }
+    // Step 5: Batch check existing messages
+    const existingMsgIds = candidates.map((c) => c.msgId);
+    const existingMessages = await db
+      .select()
+      .from(messages)
+      .where(sql`${messages.messageId} IN ${existingMsgIds}`);
+    const existingMsgSet = new Set(existingMessages.map((m) => m.messageId));
 
+    // Step 6: Insert new messages in batch
+    const messagesToInsert = candidates
+      .filter((c) => !existingMsgSet.has(c.msgId))
+      .map((c) => {
+        const contactId = contactMap.get(c.phone);
+        if (!contactId) return null;
+        return {
+          id: randomUUID(),
+          contactId,
+          canal: "whatsapp" as const,
+          direccion: c.fromMe ? "saliente" as const : "entrante" as const,
+          contenido: c.body,
+          leido: c.fromMe,
+          entregado: true,
+          messageId: c.msgId,
+          createdAt: new Date(c.timestamp * 1000).toISOString(),
+        };
+      })
+      .filter(Boolean);
+
+    let newMessagesCount = 0;
+    if (messagesToInsert.length > 0) {
+      await db.insert(messages).values(messagesToInsert as typeof messages.$inferInsert[]);
+      newMessagesCount = messagesToInsert.length;
+    }
+
+    // Step 7: Update contact timestamps in batch
+    const nowISO = new Date().toISOString();
+    const contactsToUpdate = [...new Set(validResults.map((r) => r.phone).filter((p) => contactMap.has(p)))];
+    const contactIdsToUpdate = contactsToUpdate.map((p) => contactMap.get(p)!);
+
+    if (contactIdsToUpdate.length > 0) {
       await db
         .update(contacts)
-        .set({ 
-          lastContact: lastMsg && typeof lastMsg === "object" && lastMsg.timestamp 
-            ? new Date(lastMsg.timestamp * 1000).toISOString() 
-            : new Date().toISOString(), 
-          updatedAt: new Date().toISOString() 
-        })
-        .where(eq(contacts.id, contactId));
+        .set({ lastContact: nowISO, updatedAt: nowISO })
+        .where(sql`${contacts.id} IN ${contactIdsToUpdate}`);
     }
+
+    console.log(`[WAHA Sync] Complete: ${newMessagesCount} new messages, ${contactsUpdatedCount} contacts updated`);
 
     return {
       newMessages: newMessagesCount,
       contactsUpdated: contactsUpdatedCount,
+      errors: [],
     };
   } catch (error) {
-    console.error("WhatsApp sync error:", error);
+    console.error("[WAHA Sync] Fatal error:", error);
     return {
       newMessages: 0,
       contactsUpdated: 0,
