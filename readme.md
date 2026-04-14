@@ -13,6 +13,14 @@ El sistema se encuentra actualmente en producción y es totalmente operativo tan
 *   **Autenticación:** Better Auth con soporte para Edge Runtime.
 *   **Integraciones:** WhatsApp (WAHA) y Email (SMTP/IMAP) integrados y operativos.
 
+### Enlaces del Proyecto
+
+| Recurso | URL |
+|---------|-----|
+| 🎨 Diseño (Figma) | [Ver diseño](https://www.figma.com/design/SD2TyTfizg1uBBLxZJmj3Y/startup-CRM) |
+| 📋 Kanban (Jira) | [Ver tablero](https://mrcortez566-1772112292068.atlassian.net/jira/software/projects/SLM2/boards/2) |
+| 🔗 Vaquería (Proyecto Relacionado) | [Sitio](https://vaqueria.vercel.app/) - [GitHub](https://github.com/fabinnerself/vaqueria) |
+
 ---
 
 ## Descripción del Proyecto
@@ -134,7 +142,7 @@ vercel --prod
 - **Rodrigo Fernandez** - Backend
 - **Favian Medina Gemio** - Backend
 - **Mario Isaac Alberto Cortez** - Backend
-- **Anghelo Flores** - Backend
+- **Ricardo halhuen Moraga Cortez** - Backend
 
 ---
 
